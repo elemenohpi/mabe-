@@ -69,6 +69,7 @@ Outputs (7) - Sum of the outputs has the maximum value of 0.1
 // What if organisms play against themselves? (regions are different so they will learn different playing conditions, right?)
 // Change the fitness fomula. Give it to the settings.cfg file
 // Agents should get rewarded for winning fast
+// No Action penalty?
 //##########################################	End of Things we can try 	##############################################
 
 
@@ -190,18 +191,17 @@ class Game {
 		const double STRUCT_DEFEND = 5; //Reward for successfully defending the bullets
 
 		//HARVESTING Parameters
-		const double RES_SCORE = 5; //Score gained for harvesting 
+		const double RES_SCORE = 2; //Score gained for harvesting 
 		const double FOOD_REWARD = 3; //The amount of resource reward for harvesting
-		
-		// const double ELIMINATION_REWARD = 50; //Reward for successfully eliminating another team. This hasn't been coded yet. We might not need it at all
-		const double WIN_REWARD = 0; //Reward for winning the game
-		const double SWITCH_PENALTY = 0; //Penalty of task switching
+
+		//MOTIVATION Parameters
+		const double MOVE_REWARD = 0.001;
+		const double WIN_REWARD = 0; //Reward for winning the game -- Cancer parameter...
+		const double SWITCH_PENALTY = 5; //Penalty of task switching
 	
 		const int MAX_CYCLES = 1000; //Maximum allowed cycles in the game
 
 		unsigned long long int unique_number = 1; //This number, magically, will always be unique for assigning to indexes!
-
-
 
 		const int START_SCORE = 50; //DO NOT USE THIS TO CHANGE THE STARTING SCORE. CHANGE IT ACCORDING TO THE START SCORE DEFINED IN TEAM STRUCT
 
@@ -428,7 +428,11 @@ class Game {
 			double accuracies[4];
 			for(auto team : teams)
 			{
-				final_scores[team->id-1] = team->score - START_SCORE;
+				team->score -= START_SCORE;
+				//Old fitness function
+				// final_scores[team->id-1] = team->score; 
+				//New fitness function (weighted score fitness)
+				final_scores[team->id-1] = team->sGained - team->sLost/2;
 				if(team->totalShots == 0)
 					accuracies[team->id-1] = 0;
 				else
@@ -926,6 +930,8 @@ class Game {
 				grid[X][Y] = AGENT;
 				agent->x = X;
 				agent->y = Y;
+				findTeam(agent->team_id)->score += MOVE_REWARD;
+				findTeam(agent->team_id)->sGained += MOVE_REWARD;
 			}
 		}
 
