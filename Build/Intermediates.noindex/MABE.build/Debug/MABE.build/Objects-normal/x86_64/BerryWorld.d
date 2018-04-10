@@ -1,0 +1,20 @@
+dependencies: \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/BerryWorld.cpp \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/BerryWorld.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../Utilities/Utilities.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/Utilities/VectorNd.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/Utilities/PointNd.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/Utilities/TurnTable.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/Utilities/SensorArcs.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/AbstractWorld.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/Group.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/DefaultArchivist.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Global.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Utilities/Parameters.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Organism/Organism.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Organism/../Brain/AbstractBrain.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Organism/../Brain/../Genome/AbstractGenome.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Organism/../Brain/../Genome/../Utilities/Data.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Organism/../Brain/../Genome/../Utilities/Random.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Archivist/../Utilities/MTree.h \
+  /Users/elemenohpi/Desktop/mabe/World/BerryWorld/../../World/../Group/../Optimizer/AbstractOptimizer.h

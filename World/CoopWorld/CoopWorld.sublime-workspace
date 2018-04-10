@@ -1,0 +1,335 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"to",
+				"totalStructHit"
+			],
+			[
+				"su",
+				"totalSuccessfulShots"
+			],
+			[
+				"team",
+				"team_id"
+			],
+			[
+				"totalS",
+				"totalSuccessfulShots"
+			],
+			[
+				"total",
+				"totalStructGotHit"
+			],
+			[
+				"totalstr",
+				"totalStructHit"
+			],
+			[
+				"totalStr",
+				"totalStructGotHit"
+			],
+			[
+				"random",
+				"randomEmptyPos"
+			],
+			[
+				"has",
+				"hasFood"
+			],
+			[
+				"remove",
+				"removeBullet"
+			],
+			[
+				"pop",
+				"population"
+			],
+			[
+				"STRUCT",
+				"STRUCT_DEFEND"
+			],
+			[
+				"STRU",
+				"STRUCT_HIT_SCORE"
+			],
+			[
+				"STR",
+				"STRUCT_HIT_PENALTY"
+			],
+			[
+				"HIT",
+				"HIT_SCORE"
+			],
+			[
+				"uniq",
+				"unique_number"
+			],
+			[
+				"PEN",
+				"HIT_PENALTY"
+			],
+			[
+				"FOOD",
+				"FOOD_RES"
+			],
+			[
+				"food",
+				"FOOD"
+			],
+			[
+				"START",
+				"START_SCORE"
+			],
+			[
+				"temp",
+				"temp_facingX"
+			],
+			[
+				"is",
+				"isInGrid"
+			],
+			[
+				"visualiz",
+				"visualizeGrid"
+			],
+			[
+				"fron",
+				"frontGridSpaceB"
+			],
+			[
+				"just",
+				"justShot"
+			],
+			[
+				"facin",
+				"facingX"
+			],
+			[
+				"facing",
+				"facingY"
+			],
+			[
+				"grid",
+				"gridSize"
+			],
+			[
+				"shoot",
+				"shootingRes"
+			],
+			[
+				"brain",
+				"brainNamePL"
+			],
+			[
+				"front",
+				"frontGridSpace"
+			],
+			[
+				"min",
+				"minY"
+			],
+			[
+				"read",
+				"readOutput"
+			],
+			[
+				"world",
+				"worldUpdates"
+			],
+			[
+				"b",
+				"brain"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/elemenohpi/Desktop/mabe/settings_world.cfg",
+		"/Users/elemenohpi/Desktop/mabe/settings.cfg",
+		"/Users/elemenohpi/Desktop/mabe/settings_organism.cfg",
+		"/Users/elemenohpi/Desktop/mabe/World/CoopWorld/CoopWorld.cpp",
+		"/Users/elemenohpi/Desktop/mabe/World/CoopWorld/CoopWorld.h",
+		"/Users/elemenohpi/Desktop/mabe/max.csv",
+		"/Users/elemenohpi/Desktop/mabe/main.cpp",
+		"/Users/elemenohpi/Desktop/mabe/modules.h",
+		"/Users/elemenohpi/Desktop/mabe/World/AbstractWorld.h",
+		"/Users/elemenohpi/Desktop/mabe/TEST/test.cpp",
+		"/Users/elemenohpi/Desktop/mabe/World/XorWorld/XorWorld.h",
+		"/Users/elemenohpi/Desktop/mabe/Brain/AbstractBrain.h",
+		"/Users/elemenohpi/Desktop/mabe/World/TestWorld/TestWorld.cpp",
+		"/Users/elemenohpi/Desktop/Some notes:",
+		"/Users/elemenohpi/Desktop/mabe/World/CoopWorld/Game.h",
+		"/Users/elemenohpi/Desktop/mabe/World/CoopWorld/Game.cpp",
+		"/Users/elemenohpi/Desktop/mabe/World/BerryWorld/BerryWorld.h",
+		"/Users/elemenohpi/Desktop/mabe/LOD_data.csv",
+		"/Users/elemenohpi/Desktop/mabe/buildOptions.txt",
+		"/Users/elemenohpi/Desktop/mabe/World/BerryWorld/BerryWorld.cpp",
+		"/Users/elemenohpi/Desktop/mabe/World/TestWorld/TestWorld.h",
+		"/Users/elemenohpi/Desktop/mabe/.travis.buildOptions.txt",
+		"/Users/elemenohpi/Desktop/mabe/Examples/World/TemplateWorld_READ_ME.txt",
+		"/Users/elemenohpi/Desktop/mabe/Examples/World/EXampleWorld_h",
+		"/Users/elemenohpi/Desktop/mabe/World/CoopWorld/untitled",
+		"/Users/elemenohpi/Desktop/mabe/Utilities/Parameters.cpp",
+		"/Users/elemenohpi/Downloads/Miniconda3-latest-MacOSX-x86_64.sh",
+		"/Users/elemenohpi/Desktop/Reviews/blog-review-fenton-of-iliya-miralavy.md",
+		"/Users/elemenohpi/Downloads/Adams, Bryan - (Everything I Do) I Do It For You v1.gp4",
+		"/Users/elemenohpi/Downloads/Telegram Desktop/islamic/app/Http/Controllers/AdminController.php",
+		"/Users/elemenohpi/Downloads/uidaho-cs472-project3-master/src/individual/individual.cpp"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 101.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 35.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "CoopWorld.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 196.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

@@ -1,0 +1,601 @@
+// !$*UTF9*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		43C946BD9CF67BBCC1076E56 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50E64F17B128284A07EB0353 /* main.cpp */; };
+		E05D4410AAB7B236A39AE6A6 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDF48A7AC15235A80EC3EC9 /* Global.cpp */; };
+		805C4F178F010957313985FB /* Archivist/DefaultArchivist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8A5D4C2A9D418BF3BC1BEED3 /* Archivist/DefaultArchivist.cpp */; };
+		DE5446D8945EA4A7FEC79EBA /* Archivist/LODwAPArchivist/LODwAPArchivist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15A9409C8D7EAEA41BF5AA48 /* Archivist/LODwAPArchivist/LODwAPArchivist.cpp */; };
+		E1D344C4A095C529263929CF /* Archivist/SSwDArchivist/SSwDArchivist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BBA4DE190D10BA4D8B79027 /* Archivist/SSwDArchivist/SSwDArchivist.cpp */; };
+		2B62440492DE7E78FC43D5C7 /* Brain/AbstractBrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 032A45A88D47F1183A028A76 /* Brain/AbstractBrain.cpp */; };
+		249249FDA87E47C6360D833B /* Brain/CGPBrain/CGPBrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CAF4581B99C8C6DF1A2EF4A /* Brain/CGPBrain/CGPBrain.cpp */; };
+		28264141B4831582528C7336 /* Brain/ConstantValuesBrain/ConstantValuesBrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CBA4014A2F13C9CA8629EEB /* Brain/ConstantValuesBrain/ConstantValuesBrain.cpp */; };
+		8CBF46779EA2755E87E62026 /* Brain/HumanBrain/HumanBrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF344F2F81AE696749FE00A5 /* Brain/HumanBrain/HumanBrain.cpp */; };
+		70DD415F82B06452D2776C94 /* Genome/AbstractGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 02C24143AF0D39DE0E807A03 /* Genome/AbstractGenome.cpp */; };
+		056B45489D4F6D6B95DD0D09 /* Genome/CircularGenome/CircularGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1AA409DA9046A7D49953B64 /* Genome/CircularGenome/CircularGenome.cpp */; };
+		397D4DE28924F27FEB6FAE9A /* Genome/MultiGenome/MultiGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 738D4CC2AAE22E42FC3ECAB4 /* Genome/MultiGenome/MultiGenome.cpp */; };
+		6A594057AEE62517395BE014 /* Genome/MultiGenome/Chromosome/AbstractChromosome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF5147C9A56C52831B5D7172 /* Genome/MultiGenome/Chromosome/AbstractChromosome.cpp */; };
+		033F42FDB50D807B750AF88A /* Genome/MultiGenome/Chromosome/TemplatedChromosome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27584809989984677915D07A /* Genome/MultiGenome/Chromosome/TemplatedChromosome.cpp */; };
+		288544ADA7BB487504C8F870 /* Group/Group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C6C44E887F9841C66F4634F /* Group/Group.cpp */; };
+		B3114F7C9FD43034D3A64EF7 /* Optimizer/AbstractOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AF44C48BDD1AAC2EF41F3F1 /* Optimizer/AbstractOptimizer.cpp */; };
+		63444561B58BD112926B08ED /* Optimizer/SimpleOptimizer/SimpleOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C24F449880E0CA27091E9669 /* Optimizer/SimpleOptimizer/SimpleOptimizer.cpp */; };
+		44BB4473A5308F0017EB0281 /* Organism/Organism.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8D9F4D2CADA870E538084C33 /* Organism/Organism.cpp */; };
+		7CD4452B8DF8A82373D38D8C /* Utilities/Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F3C4D51A047127A894969F1 /* Utilities/Data.cpp */; };
+		6AF842FDB68811F601020F70 /* Utilities/Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0E5646CE9E578E3AF3E232DD /* Utilities/Parameters.cpp */; };
+		D3F44539A6BCE4B3687DA1BB /* Utilities/Loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62B74371885399C2E1DA50CE /* Utilities/Loader.cpp */; };
+		1F9B4939BEF390A4612E5C21 /* Utilities/zupply.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EC4546A8B6DB6AFE34D1EB64 /* Utilities/zupply.cpp */; };
+		41F74E26814B39922D281335 /* World/AbstractWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B354D73B32C8DFC641186A2 /* World/AbstractWorld.cpp */; };
+		F9604055B2D3020DB6E57713 /* World/BerryWorld/BerryWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF0445628B43576A796A4190 /* World/BerryWorld/BerryWorld.cpp */; };
+		51964DB9B19C8426F64F697F /* World/TestWorld/TestWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28E74DA2858AAC9CEF5374E8 /* World/TestWorld/TestWorld.cpp */; };
+		A36C4CAAAC7F8CFD533DA1D9 /* World/XorWorld/XorWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF4A472A922DC34AD02D45D8 /* World/XorWorld/XorWorld.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB944EB2AEDB35B4891930C6 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B01C4973B66F2720DFDCD45B /* MABE */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MABE; sourceTree = BUILT_PRODUCTS_DIR; };
+		50E64F17B128284A07EB0353 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		8FDF48A7AC15235A80EC3EC9 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Global.cpp; sourceTree = "<group>"; };
+		02654F7F8ECA7A1EE0A0C400 /* Global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Global.h; sourceTree = "<group>"; };
+		23054899BB2491CD2E9458E9 /* modules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = modules.h; sourceTree = "<group>"; };
+		8A5D4C2A9D418BF3BC1BEED3 /* DefaultArchivist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DefaultArchivist.cpp; sourceTree = "<group>"; };
+		40A44CC6AB0FCC95825B46FE /* DefaultArchivist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultArchivist.h; sourceTree = "<group>"; };
+		15A9409C8D7EAEA41BF5AA48 /* LODwAPArchivist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LODwAPArchivist.cpp; sourceTree = "<group>"; };
+		440C4142BECDDAADEF203724 /* LODwAPArchivist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LODwAPArchivist.h; sourceTree = "<group>"; };
+		8BBA4DE190D10BA4D8B79027 /* SSwDArchivist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSwDArchivist.cpp; sourceTree = "<group>"; };
+		87C34B34A0C24890ACDFA40F /* SSwDArchivist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SSwDArchivist.h; sourceTree = "<group>"; };
+		032A45A88D47F1183A028A76 /* AbstractBrain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractBrain.cpp; sourceTree = "<group>"; };
+		A11C4449A76CDEE13A4F1367 /* AbstractBrain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractBrain.h; sourceTree = "<group>"; };
+		8CAF4581B99C8C6DF1A2EF4A /* CGPBrain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGPBrain.cpp; sourceTree = "<group>"; };
+		C8CA4A82A699A366820A933D /* CGPBrain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CGPBrain.h; sourceTree = "<group>"; };
+		5CBA4014A2F13C9CA8629EEB /* ConstantValuesBrain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConstantValuesBrain.cpp; sourceTree = "<group>"; };
+		D73F496C9B4FF0C2CFDCAE0A /* ConstantValuesBrain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConstantValuesBrain.h; sourceTree = "<group>"; };
+		DF344F2F81AE696749FE00A5 /* HumanBrain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HumanBrain.cpp; sourceTree = "<group>"; };
+		BD6A497A80D59D467FD22C1F /* HumanBrain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HumanBrain.h; sourceTree = "<group>"; };
+		02C24143AF0D39DE0E807A03 /* AbstractGenome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractGenome.cpp; sourceTree = "<group>"; };
+		40B0487A887A99BFED997560 /* AbstractGenome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractGenome.h; sourceTree = "<group>"; };
+		B1AA409DA9046A7D49953B64 /* CircularGenome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircularGenome.cpp; sourceTree = "<group>"; };
+		7EFE4EA78AC1388F75131234 /* CircularGenome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CircularGenome.h; sourceTree = "<group>"; };
+		738D4CC2AAE22E42FC3ECAB4 /* MultiGenome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiGenome.cpp; sourceTree = "<group>"; };
+		4D0D4C7789BFB511594A2942 /* MultiGenome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MultiGenome.h; sourceTree = "<group>"; };
+		EF5147C9A56C52831B5D7172 /* AbstractChromosome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractChromosome.cpp; sourceTree = "<group>"; };
+		3CD64235BBF88BC1F888127A /* AbstractChromosome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractChromosome.h; sourceTree = "<group>"; };
+		28864C45BF8837FC3E65B595 /* TemplatedChromosome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TemplatedChromosome.h; sourceTree = "<group>"; };
+		27584809989984677915D07A /* TemplatedChromosome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TemplatedChromosome.cpp; sourceTree = "<group>"; };
+		6C6C44E887F9841C66F4634F /* Group.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Group.cpp; sourceTree = "<group>"; };
+		3F234BD5A37D60E0E3156626 /* Group.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Group.h; sourceTree = "<group>"; };
+		5AF44C48BDD1AAC2EF41F3F1 /* AbstractOptimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractOptimizer.cpp; sourceTree = "<group>"; };
+		074B4728979A42200F6E7C62 /* AbstractOptimizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractOptimizer.h; sourceTree = "<group>"; };
+		C24F449880E0CA27091E9669 /* SimpleOptimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimpleOptimizer.cpp; sourceTree = "<group>"; };
+		5AAF497794F77C84184C79AC /* SimpleOptimizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimpleOptimizer.h; sourceTree = "<group>"; };
+		8D9F4D2CADA870E538084C33 /* Organism.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Organism.cpp; sourceTree = "<group>"; };
+		85AC417F9EEDDAEFE3695093 /* Organism.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Organism.h; sourceTree = "<group>"; };
+		5F3C4D51A047127A894969F1 /* Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Data.cpp; sourceTree = "<group>"; };
+		E8E64316B2D4D8B2D327D6FA /* Data.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Data.h; sourceTree = "<group>"; };
+		0E5646CE9E578E3AF3E232DD /* Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parameters.cpp; sourceTree = "<group>"; };
+		BF16439184AF9A46BE1A5C45 /* Parameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Parameters.h; sourceTree = "<group>"; };
+		62B74371885399C2E1DA50CE /* Loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Loader.cpp; sourceTree = "<group>"; };
+		A37F4F37A04A4C414092A23B /* Loader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Loader.h; sourceTree = "<group>"; };
+		EC4546A8B6DB6AFE34D1EB64 /* zupply.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zupply.cpp; sourceTree = "<group>"; };
+		537D4388845824AAF7D576A2 /* zupply.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = zupply.h; sourceTree = "<group>"; };
+		8B354D73B32C8DFC641186A2 /* AbstractWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractWorld.cpp; sourceTree = "<group>"; };
+		BC5A46EB931BA989204CCA9F /* AbstractWorld.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractWorld.h; sourceTree = "<group>"; };
+		FF0445628B43576A796A4190 /* BerryWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BerryWorld.cpp; sourceTree = "<group>"; };
+		202B470B84C004871C33442D /* BerryWorld.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BerryWorld.h; sourceTree = "<group>"; };
+		B0C54AD9AC419FBF456023BD /* VectorNd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VectorNd.h; sourceTree = "<group>"; };
+		852F4A69963CFF66E4C8D93F /* SensorArcs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorArcs.h; sourceTree = "<group>"; };
+		1E5C48BFA5CE64A260A6CFBC /* PointNd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PointNd.h; sourceTree = "<group>"; };
+		F4A8454CAE178268D046DF45 /* TurnTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TurnTable.h; sourceTree = "<group>"; };
+		28E74DA2858AAC9CEF5374E8 /* TestWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestWorld.cpp; sourceTree = "<group>"; };
+		072D471D909F6364286FBEF2 /* TestWorld.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestWorld.h; sourceTree = "<group>"; };
+		CF4A472A922DC34AD02D45D8 /* XorWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XorWorld.cpp; sourceTree = "<group>"; };
+		311A4B94A12542EDE3EE5034 /* XorWorld.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XorWorld.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D5BF4730B2C6ED65D8355627 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D0394DF0BA31A43AA29C0624 = {
+			isa = PBXGroup;
+			children = (
+				06994BEFAD4E58FFAF6A00C2 /* MABE */,
+				82994FCC95B2475F47AA95EB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		82994FCC95B2475F47AA95EB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B01C4973B66F2720DFDCD45B /* MABE */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		06994BEFAD4E58FFAF6A00C2 /* MABE */ = {
+			isa = PBXGroup;
+			children = (
+				50E64F17B128284A07EB0353 /* main.cpp */,
+				8FDF48A7AC15235A80EC3EC9 /* Global.cpp */,
+				02654F7F8ECA7A1EE0A0C400 /* Global.h */,
+				23054899BB2491CD2E9458E9 /* modules.h */,
+				89DE4D89B23B33CC579C6E57 /* Archivist */,
+				D1DC4BC0A9F7302BFCC22F89 /* Brain */,
+				AE54489BA01EC98048159D14 /* Genome */,
+				79414CADA4CB3009F0E7C86F /* Group */,
+				28644775A573B4298EAF542A /* Optimizer */,
+				62D94F27A477D0E414EE1AE2 /* Organism */,
+				FF704BECBD464D121BACC625 /* Utilities */,
+				2F9E463DADB85DC7DC4992CC /* World */,
+			);
+			path = ./;
+			sourceTree = "<group>";
+		};
+		89DE4D89B23B33CC579C6E57 /* Archivist */ = {
+			isa = PBXGroup;
+			children = (
+			8A5D4C2A9D418BF3BC1BEED3 /* DefaultArchivist.cpp */,
+			40A44CC6AB0FCC95825B46FE /* DefaultArchivist.h */,
+			B29A4742BBD316642C9C624D /* LODwAPArchivist */,
+			7F3A42AC88B7C868891AA6B6 /* SSwDArchivist */,
+			);
+			path = Archivist;
+			sourceTree = "<group>";
+		};
+		B29A4742BBD316642C9C624D /* LODwAPArchivist */ = {
+			isa = PBXGroup;
+			children = (
+			15A9409C8D7EAEA41BF5AA48 /* LODwAPArchivist.cpp */,
+			440C4142BECDDAADEF203724 /* LODwAPArchivist.h */,
+			);
+			path = LODwAPArchivist;
+			sourceTree = "<group>";
+		};
+		7F3A42AC88B7C868891AA6B6 /* SSwDArchivist */ = {
+			isa = PBXGroup;
+			children = (
+			8BBA4DE190D10BA4D8B79027 /* SSwDArchivist.cpp */,
+			87C34B34A0C24890ACDFA40F /* SSwDArchivist.h */,
+			);
+			path = SSwDArchivist;
+			sourceTree = "<group>";
+		};
+		D1DC4BC0A9F7302BFCC22F89 /* Brain */ = {
+			isa = PBXGroup;
+			children = (
+			032A45A88D47F1183A028A76 /* AbstractBrain.cpp */,
+			A11C4449A76CDEE13A4F1367 /* AbstractBrain.h */,
+			E45741C2910E0C160E2F3AD6 /* CGPBrain */,
+			5B114A51A409C3F87D791B91 /* ConstantValuesBrain */,
+			BB874CB5879612484A11ED0D /* HumanBrain */,
+			);
+			path = Brain;
+			sourceTree = "<group>";
+		};
+		E45741C2910E0C160E2F3AD6 /* CGPBrain */ = {
+			isa = PBXGroup;
+			children = (
+			8CAF4581B99C8C6DF1A2EF4A /* CGPBrain.cpp */,
+			C8CA4A82A699A366820A933D /* CGPBrain.h */,
+			);
+			path = CGPBrain;
+			sourceTree = "<group>";
+		};
+		5B114A51A409C3F87D791B91 /* ConstantValuesBrain */ = {
+			isa = PBXGroup;
+			children = (
+			5CBA4014A2F13C9CA8629EEB /* ConstantValuesBrain.cpp */,
+			D73F496C9B4FF0C2CFDCAE0A /* ConstantValuesBrain.h */,
+			);
+			path = ConstantValuesBrain;
+			sourceTree = "<group>";
+		};
+		BB874CB5879612484A11ED0D /* HumanBrain */ = {
+			isa = PBXGroup;
+			children = (
+			DF344F2F81AE696749FE00A5 /* HumanBrain.cpp */,
+			BD6A497A80D59D467FD22C1F /* HumanBrain.h */,
+			);
+			path = HumanBrain;
+			sourceTree = "<group>";
+		};
+		AE54489BA01EC98048159D14 /* Genome */ = {
+			isa = PBXGroup;
+			children = (
+			02C24143AF0D39DE0E807A03 /* AbstractGenome.cpp */,
+			40B0487A887A99BFED997560 /* AbstractGenome.h */,
+			A6A34E9BA1B1991D23C16A6C /* CircularGenome */,
+			A6C14903A6D06F86A9100D5B /* MultiGenome */,
+			);
+			path = Genome;
+			sourceTree = "<group>";
+		};
+		A6A34E9BA1B1991D23C16A6C /* CircularGenome */ = {
+			isa = PBXGroup;
+			children = (
+			B1AA409DA9046A7D49953B64 /* CircularGenome.cpp */,
+			7EFE4EA78AC1388F75131234 /* CircularGenome.h */,
+			);
+			path = CircularGenome;
+			sourceTree = "<group>";
+		};
+		A6C14903A6D06F86A9100D5B /* MultiGenome */ = {
+			isa = PBXGroup;
+			children = (
+			738D4CC2AAE22E42FC3ECAB4 /* MultiGenome.cpp */,
+			4D0D4C7789BFB511594A2942 /* MultiGenome.h */,
+			D80840F89C4806070FDCC08D /* Chromosome */,
+			);
+			path = MultiGenome;
+			sourceTree = "<group>";
+		};
+		D80840F89C4806070FDCC08D /* Chromosome */ = {
+			isa = PBXGroup;
+			children = (
+			EF5147C9A56C52831B5D7172 /* AbstractChromosome.cpp */,
+			3CD64235BBF88BC1F888127A /* AbstractChromosome.h */,
+			28864C45BF8837FC3E65B595 /* TemplatedChromosome.h */,
+			27584809989984677915D07A /* TemplatedChromosome.cpp */,
+			);
+			path = Chromosome;
+			sourceTree = "<group>";
+		};
+		79414CADA4CB3009F0E7C86F /* Group */ = {
+			isa = PBXGroup;
+			children = (
+			6C6C44E887F9841C66F4634F /* Group.cpp */,
+			3F234BD5A37D60E0E3156626 /* Group.h */,
+			);
+			path = Group;
+			sourceTree = "<group>";
+		};
+		28644775A573B4298EAF542A /* Optimizer */ = {
+			isa = PBXGroup;
+			children = (
+			5AF44C48BDD1AAC2EF41F3F1 /* AbstractOptimizer.cpp */,
+			074B4728979A42200F6E7C62 /* AbstractOptimizer.h */,
+			413743E98C5DB9409E42A38C /* SimpleOptimizer */,
+			);
+			path = Optimizer;
+			sourceTree = "<group>";
+		};
+		413743E98C5DB9409E42A38C /* SimpleOptimizer */ = {
+			isa = PBXGroup;
+			children = (
+			C24F449880E0CA27091E9669 /* SimpleOptimizer.cpp */,
+			5AAF497794F77C84184C79AC /* SimpleOptimizer.h */,
+			);
+			path = SimpleOptimizer;
+			sourceTree = "<group>";
+		};
+		62D94F27A477D0E414EE1AE2 /* Organism */ = {
+			isa = PBXGroup;
+			children = (
+			8D9F4D2CADA870E538084C33 /* Organism.cpp */,
+			85AC417F9EEDDAEFE3695093 /* Organism.h */,
+			);
+			path = Organism;
+			sourceTree = "<group>";
+		};
+		FF704BECBD464D121BACC625 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+			5F3C4D51A047127A894969F1 /* Data.cpp */,
+			E8E64316B2D4D8B2D327D6FA /* Data.h */,
+			0E5646CE9E578E3AF3E232DD /* Parameters.cpp */,
+			BF16439184AF9A46BE1A5C45 /* Parameters.h */,
+			62B74371885399C2E1DA50CE /* Loader.cpp */,
+			A37F4F37A04A4C414092A23B /* Loader.h */,
+			EC4546A8B6DB6AFE34D1EB64 /* zupply.cpp */,
+			537D4388845824AAF7D576A2 /* zupply.h */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		2F9E463DADB85DC7DC4992CC /* World */ = {
+			isa = PBXGroup;
+			children = (
+			8B354D73B32C8DFC641186A2 /* AbstractWorld.cpp */,
+			BC5A46EB931BA989204CCA9F /* AbstractWorld.h */,
+			89AA402ABAD3A58645B2B141 /* BerryWorld */,
+			87E5409CA71D9B685BE2A9EA /* TestWorld */,
+			34F040EE8F46579C9122E658 /* XorWorld */,
+			);
+			path = World;
+			sourceTree = "<group>";
+		};
+		89AA402ABAD3A58645B2B141 /* BerryWorld */ = {
+			isa = PBXGroup;
+			children = (
+			FF0445628B43576A796A4190 /* BerryWorld.cpp */,
+			202B470B84C004871C33442D /* BerryWorld.h */,
+			763D4ACF98F537F331069959 /* Utilities */,
+			);
+			path = BerryWorld;
+			sourceTree = "<group>";
+		};
+		763D4ACF98F537F331069959 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+			B0C54AD9AC419FBF456023BD /* VectorNd.h */,
+			852F4A69963CFF66E4C8D93F /* SensorArcs.h */,
+			1E5C48BFA5CE64A260A6CFBC /* PointNd.h */,
+			F4A8454CAE178268D046DF45 /* TurnTable.h */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		87E5409CA71D9B685BE2A9EA /* TestWorld */ = {
+			isa = PBXGroup;
+			children = (
+			28E74DA2858AAC9CEF5374E8 /* TestWorld.cpp */,
+			072D471D909F6364286FBEF2 /* TestWorld.h */,
+			);
+			path = TestWorld;
+			sourceTree = "<group>";
+		};
+		34F040EE8F46579C9122E658 /* XorWorld */ = {
+			isa = PBXGroup;
+			children = (
+			CF4A472A922DC34AD02D45D8 /* XorWorld.cpp */,
+			311A4B94A12542EDE3EE5034 /* XorWorld.h */,
+			);
+			path = XorWorld;
+			sourceTree = "<group>";
+		};
+
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9307417DB0F9F026D3A17A74 /* MABE */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6B864C74BA5597AACCF40C25 /* Build configuration list for PBXNativeTarget "MABE" */;
+			buildPhases = (
+				3DAD45D98B870FF9F5F8B97A /* Sources */,
+				D5BF4730B2C6ED65D8355627 /* Frameworks */,
+				BB944EB2AEDB35B4891930C6 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MABE;
+			productName = mabe;
+			productReference = B01C4973B66F2720DFDCD45B /* MABE */;
+			productType = "com.apple.product-type.tool";
+                };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B79F4040AE1C4207F05F4076 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 9910;
+				ORGANIZATIONNAME = MabeUser;
+				TargetAttributes = {
+					9307417DB0F9F026D3A17A74 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 584B4BFE96E5A3407ADAE489 /* Build configuration list for PBXProject "MABE" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = D0394DF0BA31A43AA29C0624;
+			productRefGroup = 82994FCC95B2475F47AA95EB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9307417DB0F9F026D3A17A74 /* MABE */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3DAD45D98B870FF9F5F8B97A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43C946BD9CF67BBCC1076E56 /* main.cpp in Sources */,
+				E05D4410AAB7B236A39AE6A6 /* Global.cpp in Sources */,
+				805C4F178F010957313985FB /* Archivist/DefaultArchivist.cpp in Sources */,
+				DE5446D8945EA4A7FEC79EBA /* Archivist/LODwAPArchivist/LODwAPArchivist.cpp in Sources */,
+				E1D344C4A095C529263929CF /* Archivist/SSwDArchivist/SSwDArchivist.cpp in Sources */,
+				2B62440492DE7E78FC43D5C7 /* Brain/AbstractBrain.cpp in Sources */,
+				249249FDA87E47C6360D833B /* Brain/CGPBrain/CGPBrain.cpp in Sources */,
+				28264141B4831582528C7336 /* Brain/ConstantValuesBrain/ConstantValuesBrain.cpp in Sources */,
+				8CBF46779EA2755E87E62026 /* Brain/HumanBrain/HumanBrain.cpp in Sources */,
+				70DD415F82B06452D2776C94 /* Genome/AbstractGenome.cpp in Sources */,
+				056B45489D4F6D6B95DD0D09 /* Genome/CircularGenome/CircularGenome.cpp in Sources */,
+				397D4DE28924F27FEB6FAE9A /* Genome/MultiGenome/MultiGenome.cpp in Sources */,
+				6A594057AEE62517395BE014 /* Genome/MultiGenome/Chromosome/AbstractChromosome.cpp in Sources */,
+				033F42FDB50D807B750AF88A /* Genome/MultiGenome/Chromosome/TemplatedChromosome.cpp in Sources */,
+				288544ADA7BB487504C8F870 /* Group/Group.cpp in Sources */,
+				B3114F7C9FD43034D3A64EF7 /* Optimizer/AbstractOptimizer.cpp in Sources */,
+				63444561B58BD112926B08ED /* Optimizer/SimpleOptimizer/SimpleOptimizer.cpp in Sources */,
+				44BB4473A5308F0017EB0281 /* Organism/Organism.cpp in Sources */,
+				7CD4452B8DF8A82373D38D8C /* Utilities/Data.cpp in Sources */,
+				6AF842FDB68811F601020F70 /* Utilities/Parameters.cpp in Sources */,
+				D3F44539A6BCE4B3687DA1BB /* Utilities/Loader.cpp in Sources */,
+				1F9B4939BEF390A4612E5C21 /* Utilities/zupply.cpp in Sources */,
+				41F74E26814B39922D281335 /* World/AbstractWorld.cpp in Sources */,
+				F9604055B2D3020DB6E57713 /* World/BerryWorld/BerryWorld.cpp in Sources */,
+				51964DB9B19C8426F64F697F /* World/TestWorld/TestWorld.cpp in Sources */,
+				A36C4CAAAC7F8CFD533DA1D9 /* World/XorWorld/XorWorld.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		62A04770838F4549B126FB11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=0",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D1BA41F4A3AF03FDABAC885E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8A184D0984F0A9A3207D9DC4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3BDE44B5ACBEC940126E26A6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		584B4BFE96E5A3407ADAE489 /* Build configuration list for PBXProject "doggie" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62A04770838F4549B126FB11 /* Debug */,
+				D1BA41F4A3AF03FDABAC885E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6B864C74BA5597AACCF40C25 /* Build configuration list for PBXNativeTarget "doggie" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A184D0984F0A9A3207D9DC4 /* Debug */,
+				3BDE44B5ACBEC940126E26A6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B79F4040AE1C4207F05F4076 /* Project object */;
+}
