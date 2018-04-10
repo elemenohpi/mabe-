@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # MABE [![Build Status][badge-MABE-travisci]][MABE-travisci]
 
 ### For Documentation and help getting started [click here for the wiki](https://github.com/Hintzelab/MABE/wiki/)
@@ -19,3 +20,7 @@ Other: Brian Goldman (parameter configuration, advice)<br>
 =======
 # mabe-
 >>>>>>> 35c4dafd71f70c7cb0ed46a542d3e2ccca32a830
+||||||| merged common ancestors
+=======
+
+>>>>>>> 6f35274219119e7458346c586b5c4bbdb8f49f78
