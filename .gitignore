@@ -7,3 +7,5 @@ Utilities/zupply/unittest
 Utilities/zupply/src/quickstart.cpp
 objectFiles/
 Results/
+max.csv
+pop.csv
