@@ -154,6 +154,8 @@ class Game {
 		shared_ptr<ParameterLink<string>> brainNamePL;
 		shared_ptr<ParametersTable> PT;
 
+		int visualize;
+
 		//Grid Constants
 		const double NA     = 0;
 		const double EMPTY  = 0.005;
@@ -208,12 +210,13 @@ class Game {
 		int exp_number;
 
 	public:
-		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number)
+		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize)
 		{
+			this->visualize = visualize;
 			this->exp_number = exp_number;
 			//Visualization
 			//ToDo:: Fix the condition
-			if(true)
+			if(visualize)
 			{
 				ofstream file;
 				ostringstream oss; 
@@ -337,7 +340,7 @@ class Game {
 				//ToDo:: Fix the condition
 				//ax,ay t ax,ay t ax,ay t 100 ax,ay t ax,ay t ax,ay t 100 -bx,by bx,by bx,by -s,x,y f,x,y f,x,y s,x,ySPACE
 				//agent score agent score agent score-bullets
-				if(true)
+				if(visualize)
 				{
 					//Open the file
 					ofstream file;
@@ -1303,7 +1306,7 @@ void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, in
 		}
 
 		exp_number++;
-		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number);	
+		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize);	
 	}
 }
 
