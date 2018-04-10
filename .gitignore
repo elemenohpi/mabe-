@@ -5,3 +5,4 @@ Utilities/zupply/LICENSE
 Utilities/zupply/README.md
 Utilities/zupply/unittest
 Utilities/zupply/src/quickstart.cpp
+*.o
