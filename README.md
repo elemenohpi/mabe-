@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MABE [![Build Status][badge-MABE-travisci]][MABE-travisci]
 
 ### For Documentation and help getting started [click here for the wiki](https://github.com/Hintzelab/MABE/wiki/)
@@ -15,3 +16,6 @@ Other: Brian Goldman (parameter configuration, advice)<br>
 [mabe-travisci]: https://travis-ci.org/Hintzelab/MABE
 [badge-mabe-travisci]: https://img.shields.io/travis/Hintzelab/MABE.svg?branch=development&style=flat-square
 
+=======
+# mabe-
+>>>>>>> 35c4dafd71f70c7cb0ed46a542d3e2ccca32a830
