@@ -8,7 +8,7 @@ int rows;
 int cycle = 0;
 String[] lines;
 int iterator = 1;
-String file = "20_1";
+String file = "0_1";
 boolean end_flag = true;
 int gridSize = 50;
 

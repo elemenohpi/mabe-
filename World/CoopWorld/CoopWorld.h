@@ -28,7 +28,19 @@ public:
 	static shared_ptr<ParameterLink<int>> nBackPL;
 	static shared_ptr<ParameterLink<string>> groupNamePL;
 	static shared_ptr<ParameterLink<string>> brainNamePL;
-
+	static shared_ptr<ParameterLink<double>> hitScorePL; 
+	static shared_ptr<ParameterLink<double>> shootResPL;
+	static shared_ptr<ParameterLink<double>> hitPenaltyPL;
+	static shared_ptr<ParameterLink<double>> ffPenaltyPL;
+	static shared_ptr<ParameterLink<double>> structHitScorePL;
+	static shared_ptr<ParameterLink<double>> buildResPL;
+	static shared_ptr<ParameterLink<double>> structHitPenaltyPL;
+	static shared_ptr<ParameterLink<double>> structDefendPL;
+	static shared_ptr<ParameterLink<double>> resScorePL;
+	static shared_ptr<ParameterLink<double>> foodRewardPL;
+	static shared_ptr<ParameterLink<double>> moveRewardPL;
+	static shared_ptr<ParameterLink<double>> winRewardPL;
+	static shared_ptr<ParameterLink<double>> switchPenaltyPL;
 
 	CoopWorld(shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~CoopWorld() = default;

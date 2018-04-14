@@ -77,12 +77,26 @@ Outputs (7) - Sum of the outputs has the maximum value of 0.1
 
 #include "CoopWorld.h"
 
-shared_ptr<ParameterLink<int>> CoopWorld::modePL = Parameters::register_parameter("WORLD_COOP-mode", 0, "0 = bit outputs before adding, 1 = add outputs");
+shared_ptr<ParameterLink<int>> CoopWorld::modePL = Parameters::register_parameter("WORLD_COOP-mode", 0, "0 = 3 copies of one brain for each agent, 1 = one brain for each agent, 2 = specialized group evolution");
 shared_ptr<ParameterLink<int>> CoopWorld::numberOfOutputsPL = Parameters::register_parameter("WORLD_COOP-numberOfOutputs", 7, "number of outputs in this world");
-shared_ptr<ParameterLink<int>> CoopWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_COOP-evaluationsPerGeneration", 1, "Number of times to test each Genome per generation (useful with non-deterministic brains)");
+shared_ptr<ParameterLink<int>> CoopWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_COOP-evaluationsPerGeneration", 1, "Number of times to test each Organism per generation (useful with non-deterministic brains/worlds)");
 shared_ptr<ParameterLink<string>> CoopWorld::groupNamePL = Parameters::register_parameter("WORLD_COOP_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
 shared_ptr<ParameterLink<string>> CoopWorld::brainNamePL = Parameters::register_parameter("WORLD_COOP_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
-shared_ptr<ParameterLink<int>> CoopWorld::nBackPL = Parameters::register_parameter("WORLD_COOP-numberOfBackIntegers", 3, "number of integers the brain should remember");
+shared_ptr<ParameterLink<int>> CoopWorld::nBackPL = Parameters::register_parameter("WORLD_COOP-numberOfBackIntegers", 3, "number of integers the brain should remember (just in case)");
+
+shared_ptr<ParameterLink<double>> CoopWorld::hitScorePL = Parameters::register_parameter("WORLD_COOP-hitScore", 3.0, "Score gained for successful agent hits");
+shared_ptr<ParameterLink<double>> CoopWorld::shootResPL = Parameters::register_parameter("WORLD_COOP-shootRes", 4.0, "Resource needed for shooting");
+shared_ptr<ParameterLink<double>> CoopWorld::hitPenaltyPL = Parameters::register_parameter("WORLD_COOP-hitPenalty", 3.0, "Penalty for getting shot");
+shared_ptr<ParameterLink<double>> CoopWorld::ffPenaltyPL = Parameters::register_parameter("WORLD_COOP-ffPenalty", -1.0, "Penalty for friendly fire");
+shared_ptr<ParameterLink<double>> CoopWorld::structHitScorePL = Parameters::register_parameter("WORLD_COOP-structHitScore", 1.0, "Score gained for successfully hitting structures");
+shared_ptr<ParameterLink<double>> CoopWorld::buildResPL = Parameters::register_parameter("WORLD_COOP-buildRes", 1.0, "Resource needed for building");
+shared_ptr<ParameterLink<double>> CoopWorld::structHitPenaltyPL = Parameters::register_parameter("WORLD_COOP-structHitPenalty", 0.0, "Penalty for shooting at own structures");
+shared_ptr<ParameterLink<double>> CoopWorld::structDefendPL = Parameters::register_parameter("WORLD_COOP-structDefend", 5.0, "Reward for successfully defending the bullets");
+shared_ptr<ParameterLink<double>> CoopWorld::resScorePL = Parameters::register_parameter("WORLD_COOP-resScore", 2.0, "Score gained for harvesting ");
+shared_ptr<ParameterLink<double>> CoopWorld::foodRewardPL = Parameters::register_parameter("WORLD_COOP-foodReward", 3.0, "The amount of resource reward for harvesting");
+shared_ptr<ParameterLink<double>> CoopWorld::moveRewardPL = Parameters::register_parameter("WORLD_COOP-moveReward", 0.001, "The reward for moving");
+shared_ptr<ParameterLink<double>> CoopWorld::winRewardPL = Parameters::register_parameter("WORLD_COOP-winReward", 0.0, "Reward for winning the game (only use this if you know what you're doing)");
+shared_ptr<ParameterLink<double>> CoopWorld::switchPenaltyPL = Parameters::register_parameter("WORLD_COOP-switchPenalty", 5.0, "Penalty of task switching");
 
 class Game {
 	private:
@@ -179,25 +193,25 @@ class Game {
 		int gridSize = (sizeof(grid)/sizeof(*grid));
 
 		//SHOOTING Parameters
-		const double HIT_SCORE = 3; //Score gained for successful agent hits
-		const double SHOOT_RES = 4; //Resource needed for shooting
-		const double HIT_PENALTY = 3; //Penalty for getting shot
-		const double FF_PENALTY = -1; //Penalty for friendly fire
+		double HIT_SCORE = 0;// = CoopWorld::hitScorePL->get(PT); //Score gained for successful agent hits
+		double SHOOT_RES = 0;// = CoopWorld::shootResPL->get(PT);; //Resource needed for shooting
+		double HIT_PENALTY = 0;// = CoopWorld::hitPenaltyPL->get(PT);; //Penalty for getting shot
+		double FF_PENALTY = 0;// = CoopWorld::ffPenaltyPL->get(PT);; //Penalty for friendly fire
 		
 		//BUILDING Parameters
-		const double STRUCT_HIT_SCORE = 1; //Score gained for successfully hitting structures
-		const double BUILD_RES = 1; //Resource needed for building
-		const double STRUCT_HIT_PENALTY = 0; //Penalty for shooting at own structures
-		const double STRUCT_DEFEND = 5; //Reward for successfully defending the bullets
+		double STRUCT_HIT_SCORE = 0;//= CoopWorld::structHitScorePL->get(PT);; //Score gained for successfully hitting structures
+		double BUILD_RES = 0;// = CoopWorld::buildResPL->get(PT);; //Resource needed for building
+		double STRUCT_HIT_PENALTY = 0;//= CoopWorld::structHitPenaltyPL->get(PT);; //Penalty for shooting at own structures
+		double STRUCT_DEFEND = 0;// = CoopWorld::structDefendPL->get(PT);; //Reward for successfully defending the bullets
 
 		//HARVESTING Parameters
-		const double RES_SCORE = 2; //Score gained for harvesting 
-		const double FOOD_REWARD = 3; //The amount of resource reward for harvesting
+		double RES_SCORE = 0;// = CoopWorld::resScorePL->get(PT);; //Score gained for harvesting 
+		double FOOD_REWARD = 0;// = CoopWorld::foodRewardPL->get(PT);; //The amount of resource reward for harvesting
 
 		//MOTIVATION Parameters
-		const double MOVE_REWARD = 0.001;
-		const double WIN_REWARD = 0; //Reward for winning the game -- Cancer parameter...
-		const double SWITCH_PENALTY = 5; //Penalty of task switching
+		double MOVE_REWARD = 0;// = CoopWorld::moveRewardPL->get(PT);;
+		double WIN_REWARD = 0;//= CoopWorld::winRewardPL->get(PT);; //Reward for winning the game -- Cancer parameter...
+		double SWITCH_PENALTY = 0;//= CoopWorld::switchPenaltyPL->get(PT);; //Penalty of task switching
 	
 		const int MAX_CYCLES = 1000; //Maximum allowed cycles in the game
 
@@ -210,8 +224,21 @@ class Game {
 		int exp_number;
 
 	public:
-		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize)
+		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize, double HIT_SCORE, double SHOOT_RES, double HIT_PENALTY, double FF_PENALTY, double STRUCT_HIT_SCORE, double BUILD_RES, double STRUCT_HIT_PENALTY, double STRUCT_DEFEND, double RES_SCORE, double FOOD_REWARD, double MOVE_REWARD, double WIN_REWARD, double SWITCH_PENALTY)
 		{
+			this->HIT_SCORE = HIT_SCORE;
+			this->SHOOT_RES = SHOOT_RES;
+			this->HIT_PENALTY = HIT_PENALTY;
+			this->FF_PENALTY = FF_PENALTY;
+			this->STRUCT_HIT_SCORE = STRUCT_HIT_SCORE;
+			this->BUILD_RES = BUILD_RES;
+			this->STRUCT_HIT_PENALTY = STRUCT_HIT_PENALTY;
+			this->STRUCT_DEFEND = STRUCT_DEFEND;
+			this->RES_SCORE = RES_SCORE;
+			this->FOOD_REWARD = FOOD_REWARD;
+			this->MOVE_REWARD = MOVE_REWARD;
+			this->WIN_REWARD = WIN_REWARD;
+			this->SWITCH_PENALTY = SWITCH_PENALTY;
 			this->visualize = visualize;
 			this->exp_number = exp_number;
 			//Visualization
@@ -225,7 +252,7 @@ class Game {
 				file << gridSize << "\n";
 				file.close();
 			}
-
+// cout<<"mids"<<endl;
 			// if(exp_number > 1)
 			// 	exit(1);
 
@@ -267,17 +294,28 @@ class Game {
 					//For each agent we have in all the teams. Extra amount of codes due to avoiding the vector of vectors for our organisms
 					for(int i = 0; i < 3; i++)
 					{	
+
+	
 						//If a team doesn't have food, then TRY to place one!						
 						if(!team->hasFood)
 						{
 							placeFood(team->id);
 						}
-						
+
+						//Stupid fix ftw. This is to move the memory a bit so it doesn't do segmentation fault
+						//ToDo:: Fix this
+						if(cycle == 160 && i == 0)
+							cout<<"";	
+						//Stupid fix ftw
+						//ToDo:: Fix this
+
 						shared_ptr<struct Agent> agent = team->agents[i];
 						// auto brain = p1[i]->brains[brainNamePL->get(PT)]; //initial input. This will be changed soonish. This might raise errors.
 						//ToDo:: remove if this works
 						shared_ptr<AbstractBrain> brain;
-
+// if(exp_number == 3 )
+// 															cout<<cycle<<endl;
+						//Set the brain inputs
 						//Get the brain depending on the team_id
 						if(team->id == 1)
 						{
@@ -298,7 +336,6 @@ class Game {
 							exit(1);
 						}
 
-						//Set the brain inputs
 						//0
 						brain->setInput(0, hasShootingRes(team));
 						//1
@@ -332,7 +369,9 @@ class Game {
 
 						//The largest output is the action
 										
-						doAction(agent, team, maxIndex(action, 7), cycle);	
+						doAction(agent, team, maxIndex(action, 7), cycle);
+												
+	
 					}
 				}
 
@@ -423,7 +462,7 @@ class Game {
 
 
 			}
-
+// cout<<"midf"<<endl;
 			//End of the game
 			double accuracies[4];
 			for(auto team : teams)
@@ -1278,6 +1317,7 @@ CoopWorld::CoopWorld(shared_ptr<ParametersTable> _PT) :
 
 void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
 	// cout<<endl<<endl<<endl<<"evaluation starts: "<<endl<<endl<<endl;
+	// visualize = 1;
 	auto population = groups[groupNamePL->get(PT)]->population;
 	if (population.size()%4 != 0)
 	{
@@ -1296,7 +1336,6 @@ void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, in
 		vector<shared_ptr<Organism>> p3;
 		vector<shared_ptr<Organism>> p4;
 
-
 		p1.push_back(population[i]);
 		p2.push_back(population[i+1]);
 		p3.push_back(population[i+2]);
@@ -1311,8 +1350,28 @@ void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, in
 			p4.push_back(population[i+3]->makeCopy());
 		}
 
+		//Get the world parameters
+		//SHOOTING Parameters
+		double HIT_SCORE = hitScorePL->get(PT); //Score gained for successful agent hits
+		double SHOOT_RES = shootResPL->get(PT);; //Resource needed for shooting
+		double HIT_PENALTY = hitPenaltyPL->get(PT);; //Penalty for getting shot
+		double FF_PENALTY = ffPenaltyPL->get(PT);; //Penalty for friendly fire
+		//BUILDING Parameters
+		double STRUCT_HIT_SCORE = structHitScorePL->get(PT);; //Score gained for successfully hitting structures
+		double BUILD_RES = buildResPL->get(PT);; //Resource needed for building
+		double STRUCT_HIT_PENALTY = structHitPenaltyPL->get(PT);; //Penalty for shooting at own structures
+		double STRUCT_DEFEND = structDefendPL->get(PT);; //Reward for successfully defending the bullets
+		//HARVESTING Parameters
+		double RES_SCORE = resScorePL->get(PT);; //Score gained for harvesting 
+		double FOOD_REWARD = foodRewardPL->get(PT);; //The amount of resource reward for harvesting
+		//MOTIVATION Parameters
+		double MOVE_REWARD = moveRewardPL->get(PT);;
+		double WIN_REWARD = winRewardPL->get(PT);; //Reward for winning the game -- Cancer parameter...
+		double SWITCH_PENALTY = switchPenaltyPL->get(PT);; //Penalty of task switching
+
 		exp_number++;
-		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize);	
+
+		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize, HIT_SCORE, SHOOT_RES, HIT_PENALTY, FF_PENALTY, STRUCT_HIT_SCORE, BUILD_RES, STRUCT_HIT_PENALTY, STRUCT_DEFEND, RES_SCORE, FOOD_REWARD, MOVE_REWARD, WIN_REWARD, SWITCH_PENALTY);	
 	}
 }
 

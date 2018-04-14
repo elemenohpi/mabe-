@@ -1,2 +1,2 @@
-update,timeToCoalescence,ID,alive,genomeLength,optimizeValue,score,timeOfBirth
-0,0,17,1,5000,5.571617,5.571617,-1
+update,timeToCoalescence,ID,accuracy_AVE,accuracy_LIST,alive,genomeLength,optimizeValue,sGained_AVE,sGained_LIST,sLost_AVE,sLost_LIST,score_AVE,score_LIST,timeOfBirth,totalBuilt_AVE,totalBuilt_LIST,totalFF_AVE,totalFF_LIST,totalGotHit_AVE,totalGotHit_LIST,totalHarvest_AVE,totalHarvest_LIST,totalShots_AVE,totalShots_LIST,totalStructFF_AVE,totalStructFF_LIST,totalStructGotHit_AVE,totalStructGotHit_LIST,totalStructHit_AVE,totalStructHit_LIST,totalSuccessfulShots_AVE,totalSuccessfulShots_LIST,totalSwitch_AVE,totalSwitch_LIST
+0,0,36,0.000000,"[0.000000]",1,5000,-4.668000,0.332000,"[0.332000]",10.000000,"[10.000000]",-4.668000,"[-4.668000]",-1,0.000000,"[0]",0.000000,"[0]",0.000000,"[0]",0.000000,"[0]",0.000000,"[0]",0.000000,"[0]",0.000000,"[0]",0.000000,"[0]",0.000000,"[0]",2.000000,"[2]"
