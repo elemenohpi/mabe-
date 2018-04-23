@@ -347,7 +347,6 @@ int main(int argc, const char *argv[]) {
 
   // in run mode we evolve organsims
   auto done = false;
-
   if (Global::modePL->get() == "run") {
     ////////////////////////////////////////////////////////////////////////////////////
     // run mode - evolution loop

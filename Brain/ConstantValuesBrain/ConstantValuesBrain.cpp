@@ -23,8 +23,7 @@ shared_ptr<ParameterLink<string>> ConstantValuesBrain::genomeNamePL = Parameters
 
 ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
-
-// columns to be added to ave file
+	// columns to be added to ave file
 	popFileColumns.clear();
 	for (int i = 0; i < nrOutputValues; i++) {
 		popFileColumns.push_back("brainValue" + to_string(i));

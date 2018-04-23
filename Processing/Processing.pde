@@ -1,6 +1,21 @@
 // 2D Array of objects
 Cell[][] grid;
 PImage img;
+String fileName = "Results";
+String file = "900_1";
+//Results
+//200_1 best harvesters ever
+//700_1 shooter harvester
+//7000_6 wowowowow
+//7000_3 counter-attack
+
+
+//last 
+//100 baffled lucky shooters.
+
+//res_3
+//400_2 builders
+//700_3 shooters who move in circles
 
 // Number of columns and rows in the grid
 int cols;
@@ -8,7 +23,15 @@ int rows;
 int cycle = 0;
 String[] lines;
 int iterator = 1;
-String file = "0_1";
+//res_1
+//0 => quiet - switching - baffled  - lucky bullet spray - suiciders - builders - bad tripple shooters
+//100 => harvesters 3x 
+//200_9 => always do something no switch - shooter harvester
+//700_1 -> shooter harvester - move around in circle - concervative shooters
+//res_2
+
+
+//4000_3 -> harvester 2 shooter 1
 boolean end_flag = true;
 int gridSize = 50;
 
@@ -16,7 +39,7 @@ void setup() {
   size(700,700);
   frameRate(10);
   img = loadImage("pizza.png");
-  lines = loadStrings("../Results/"+file+".txt");
+  lines = loadStrings("../" + fileName + "/"+file+".txt");
   cols = parseInt(lines[0].split(" ")[0]);
   rows = cols;
   grid = new Cell[cols][rows];
@@ -30,15 +53,7 @@ void setup() {
 
 void draw() {
   scale(0.78);
-  if(iterator == 1000)
-  {
-    if(end_flag)
-    {
-      print("ended");
-      end_flag = false;
-    }    
-    return;
-  }
+
   background(0);
   // The counter variables i and j are also the column and row numbers and 
   // are used as arguments to the constructor for each object in the grid.  
@@ -67,6 +82,12 @@ void draw() {
   
   //read file and display the agents
   //ax,ay t ax,ay t ax,ay t 100 ax,ay t ax,ay t ax,ay t 100 -bx,by bx,by bx,by -s,x,y f,x,y f,x,y s,x,ySPACE
+  if(lines.length == iterator)
+  {
+    iterator--;
+    //noLoop();
+  }
+    
   String[] info = lines[iterator].split(":");
   int cycle = parseInt(info[0]);
   String[] teamInfo = info[1].split(" ");
@@ -223,13 +244,13 @@ void keyPressed() {
     {
        int temp2 = parseInt(temp[0]) - 1;
        file = "" + temp2 + "_" + 25;
-       lines = loadStrings("../Results/"+file+".txt");
+       lines = loadStrings("../" + fileName + "/"+file+".txt");
        iterator = 1;
     }else
     {
        int temp2 = parseInt(temp[1]) - 1;
        file = "" + temp[0] + "_" + temp2;
-       lines = loadStrings("../Results/"+file+".txt");
+       lines = loadStrings("../" + fileName + "/"+file+".txt");
        iterator = 1;
     }
   }else if (key == '.')
@@ -240,13 +261,13 @@ void keyPressed() {
     {
        int temp2 = parseInt(temp[0]) + 1;
        file = "" + temp2 + "_" + 1;
-       lines = loadStrings("../Results/"+file+".txt");
+       lines = loadStrings("../" + fileName + "/"+file+".txt");
        iterator = 1;
     }else
     {
        int temp2 = parseInt(temp[1]) + 1;
        file = "" + temp[0] + "_" + temp2;
-       lines = loadStrings("../Results/"+file+".txt");
+       lines = loadStrings("../" + fileName + "/"+file+".txt");
        iterator = 1;
     }
   }else if(key == '[')

@@ -22,6 +22,7 @@
 #include "Brain/MarkovBrain/MarkovBrain.h"
 #include "Brain/ConstantValuesBrain/ConstantValuesBrain.h"
 #include "Brain/HumanBrain/HumanBrain.h"
+#include "Brain/ARNBrain/ARNBrain.h"
 #include "Optimizer/SimpleOptimizer/SimpleOptimizer.h"
 
 #include "Archivist/DefaultArchivist.h"
@@ -142,6 +143,10 @@ shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<
     newBrain = HumanBrain_brainFactory(inputs, outputs, PT);
     found = true;
     }
+  if (brainType == "ARN") {
+    newBrain = ARNBrain_brainFactory(inputs, outputs, PT);
+    found = true;
+    }
   if (found == false){
     cout << "  ERROR! could not find BRAIN-brainType \"" << brainType << "\".\n  Exiting." << endl;
     exit(1);
@@ -153,7 +158,7 @@ shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<
 //configure Defaults and Documentation
 void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("BRAIN-brainType", (string)"CGP");
-  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [CGP, Markov, ConstantValues, Human]");
+  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [CGP, Markov, ConstantValues, Human, ARN]");
 
   Parameters::root->setParameter("GENOME-genomeType", (string)"Circular");
   Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular, Multi]");

@@ -1,5 +1,6 @@
 // ToDo:: Add experience effect to the tasks
 // ToDo:: Make the code run faster
+// ToDo:: Make it make visualizations in HPCC
 
 //  MABE is a product of The Hintze Lab @ MSU
 //     for general research information:
@@ -89,14 +90,19 @@ shared_ptr<ParameterLink<double>> CoopWorld::shootResPL = Parameters::register_p
 shared_ptr<ParameterLink<double>> CoopWorld::hitPenaltyPL = Parameters::register_parameter("WORLD_COOP-hitPenalty", 3.0, "Penalty for getting shot");
 shared_ptr<ParameterLink<double>> CoopWorld::ffPenaltyPL = Parameters::register_parameter("WORLD_COOP-ffPenalty", -1.0, "Penalty for friendly fire");
 shared_ptr<ParameterLink<double>> CoopWorld::structHitScorePL = Parameters::register_parameter("WORLD_COOP-structHitScore", 1.0, "Score gained for successfully hitting structures");
-shared_ptr<ParameterLink<double>> CoopWorld::buildResPL = Parameters::register_parameter("WORLD_COOP-buildRes", 1.0, "Resource needed for building");
+shared_ptr<ParameterLink<double>> CoopWorld::buildResPL = Parameters::register_parameter("WORLD_COOP-buildRes", 10.0, "Resource needed for building");
 shared_ptr<ParameterLink<double>> CoopWorld::structHitPenaltyPL = Parameters::register_parameter("WORLD_COOP-structHitPenalty", 0.0, "Penalty for shooting at own structures");
-shared_ptr<ParameterLink<double>> CoopWorld::structDefendPL = Parameters::register_parameter("WORLD_COOP-structDefend", 5.0, "Reward for successfully defending the bullets");
-shared_ptr<ParameterLink<double>> CoopWorld::resScorePL = Parameters::register_parameter("WORLD_COOP-resScore", 2.0, "Score gained for harvesting ");
-shared_ptr<ParameterLink<double>> CoopWorld::foodRewardPL = Parameters::register_parameter("WORLD_COOP-foodReward", 3.0, "The amount of resource reward for harvesting");
+shared_ptr<ParameterLink<double>> CoopWorld::structDefendPL = Parameters::register_parameter("WORLD_COOP-structDefend", 15.0, "Reward for successfully defending the bullets");
+shared_ptr<ParameterLink<double>> CoopWorld::resScorePL = Parameters::register_parameter("WORLD_COOP-resScore", 0.01, "Score gained for harvesting ");
+shared_ptr<ParameterLink<double>> CoopWorld::foodRewardPL = Parameters::register_parameter("WORLD_COOP-foodReward", 15.0, "The amount of resource reward for harvesting");
 shared_ptr<ParameterLink<double>> CoopWorld::moveRewardPL = Parameters::register_parameter("WORLD_COOP-moveReward", 0.001, "The reward for moving");
 shared_ptr<ParameterLink<double>> CoopWorld::winRewardPL = Parameters::register_parameter("WORLD_COOP-winReward", 0.0, "Reward for winning the game (only use this if you know what you're doing)");
-shared_ptr<ParameterLink<double>> CoopWorld::switchPenaltyPL = Parameters::register_parameter("WORLD_COOP-switchPenalty", 5.0, "Penalty of task switching");
+shared_ptr<ParameterLink<double>> CoopWorld::switchPenaltyPL = Parameters::register_parameter("WORLD_COOP-switchPenalty", 0.0, "Penalty of task switching");
+shared_ptr<ParameterLink<double>> CoopWorld::buildScorePL = Parameters::register_parameter("WORLD_COOP-buildScore", 0.0, "Score earned for building");
+shared_ptr<ParameterLink<double>> CoopWorld::shootScorePL = Parameters::register_parameter("WORLD_COOP-shootScore", 0.0, "Score earned for shooting");
+shared_ptr<ParameterLink<double>> CoopWorld::naPenaltyPL = Parameters::register_parameter("WORLD_COOP-naPenalty", 0.01, "No action penalty");
+
+const bool DEBUG_MODE = false;
 
 class Game {
 	private:
@@ -212,8 +218,11 @@ class Game {
 		double MOVE_REWARD = 0;// = CoopWorld::moveRewardPL->get(PT);;
 		double WIN_REWARD = 0;//= CoopWorld::winRewardPL->get(PT);; //Reward for winning the game -- Cancer parameter...
 		double SWITCH_PENALTY = 0;//= CoopWorld::switchPenaltyPL->get(PT);; //Penalty of task switching
+		double BUILD_SCORE = 0;
+		double SHOOT_SCORE = 0;
+		double NA_PENALTY = 0;
 	
-		const int MAX_CYCLES = 1000; //Maximum allowed cycles in the game
+		const int MAX_CYCLES = 300; //Maximum allowed cycles in the game
 
 		unsigned long long int unique_number = 1; //This number, magically, will always be unique for assigning to indexes!
 
@@ -224,8 +233,13 @@ class Game {
 		int exp_number;
 
 	public:
-		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize, double HIT_SCORE, double SHOOT_RES, double HIT_PENALTY, double FF_PENALTY, double STRUCT_HIT_SCORE, double BUILD_RES, double STRUCT_HIT_PENALTY, double STRUCT_DEFEND, double RES_SCORE, double FOOD_REWARD, double MOVE_REWARD, double WIN_REWARD, double SWITCH_PENALTY)
+		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize, double HIT_SCORE, double SHOOT_RES, double HIT_PENALTY, double FF_PENALTY, double STRUCT_HIT_SCORE, double BUILD_RES, double STRUCT_HIT_PENALTY, double STRUCT_DEFEND, double RES_SCORE, double FOOD_REWARD, double MOVE_REWARD, double WIN_REWARD, double SWITCH_PENALTY, double BUILD_SCORE, double SHOOT_SCORE, double NA_PENALTY)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::Game()"<<endl;
+			//if(Global::update == 1372 || Global::update == 1256 || Global::update == 1 || Global::update == 100 || Global::update == 250 || Global::update == 500 || Global::update == 1000)
+			if(Global::update % 100 == 0)
+				visualize = true;
 			this->HIT_SCORE = HIT_SCORE;
 			this->SHOOT_RES = SHOOT_RES;
 			this->HIT_PENALTY = HIT_PENALTY;
@@ -239,6 +253,9 @@ class Game {
 			this->MOVE_REWARD = MOVE_REWARD;
 			this->WIN_REWARD = WIN_REWARD;
 			this->SWITCH_PENALTY = SWITCH_PENALTY;
+			this->BUILD_SCORE = BUILD_SCORE;
+			this->SHOOT_SCORE = SHOOT_SCORE;
+			this->NA_PENALTY = NA_PENALTY;
 			this->visualize = visualize;
 			this->exp_number = exp_number;
 			//Visualization
@@ -294,14 +311,7 @@ class Game {
 					//For each agent we have in all the teams. Extra amount of codes due to avoiding the vector of vectors for our organisms
 					for(int i = 0; i < 3; i++)
 					{	
-
-	
-						//If a team doesn't have food, then TRY to place one!						
-						if(!team->hasFood)
-						{
-							placeFood(team->id);
-						}
-
+						
 						//Stupid fix ftw. This is to move the memory a bit so it doesn't do segmentation fault
 						//ToDo:: Fix this
 						if(cycle == 160 && i == 0)
@@ -315,6 +325,8 @@ class Game {
 						shared_ptr<AbstractBrain> brain;
 // if(exp_number == 3 )
 // 															cout<<cycle<<endl;
+							
+						// cout<<"brain size = "<<p1.size()<<endl;
 						//Set the brain inputs
 						//Get the brain depending on the team_id
 						if(team->id == 1)
@@ -335,6 +347,9 @@ class Game {
 							cout<<"\n\n\nInvalid team id! Exiting!\n\n\n";
 							exit(1);
 						}
+						// cout<<"agent end"<<endl;
+
+						// cout<<"brain inputs: "<<hasShootingRes(team)<<" "<<hasBuildingRes(team)<<" ";
 
 						//0
 						brain->setInput(0, hasShootingRes(team));
@@ -345,9 +360,11 @@ class Game {
 						for(int iter = 0; iter<6; iter++)
 						{
 							brain->setInput(iter+2, vision[iter]); //Set the vision inputs
+							// cout<<vision[iter]<<" ";
 						}
 						//8
 						//facingX and facingY are in the range of -1 to 1. They should be between 0 to 0.025
+						// cout<<(agent->facingX + 1.0)/8.0<<" "<<(agent->facingY + 1.0)/8.0<<endl;
 						brain->setInput(8, (agent->facingX + 1.0)/8.0);
 						//9
 						brain->setInput(9, (agent->facingY + 1.0)/8.0);
@@ -357,21 +374,23 @@ class Game {
 						// brain->setInput(12, agent->task);
 						//ToDo:: delete?^^
 
+
 						//Update the brain
 						brain->update();
-
+						// cout<<"brain outputs: "<<endl;
 						//Read the outputs
 						double action[7];
 						for(int iter = 0; iter < 7; iter++)
 						{
 							action[iter] = brain->readOutput(iter);
+							// cout<< brain->readOutput(iter)<<" ";
 						}
-
+						// cout<<endl;
 						//The largest output is the action
-										
+									
 						doAction(agent, team, maxIndex(action, 7), cycle);
 												
-	
+						
 					}
 				}
 
@@ -393,7 +412,7 @@ class Game {
 						{
 							file<<agent->x<<","<<agent->y<<" "<<agent->task<<" "<<agent->facingX<<" "<<agent->facingY<<" ";
 						}
-						file<<team->score<<" ";
+						file<<team->sGained<<" ";
 						file<<team->resource<<" ";
 					}
 					file<<":";
@@ -471,12 +490,23 @@ class Game {
 				//Old fitness function
 				// final_scores[team->id-1] = team->score; 
 				//New fitness function (weighted score fitness)
-				final_scores[team->id-1] = team->sGained - team->sLost/2;
+				final_scores[team->id-1] = team->sGained - team->sLost/10;
+				// final_scores[team->id-1] =  team->sGained;
 				if(team->totalShots == 0)
 					accuracies[team->id-1] = 0;
 				else
 					accuracies[team->id-1] = (team->totalSuccessfulShots + team->totalStructHit * 1.0) / (team->totalShots * 1.0) * 100;
 			}
+
+			// for(int i = 0; i < 4; i++)
+			// {
+			// 	// double score_diff = 0;
+			// 	// for(int j = 0; j < 4; j++)
+			// 	// {
+			// 	// 	score_diff += findTeam(i)->score - findTeam(j)->score;
+			// 	// }
+			// 	final_scores[i] = 3 * findTeam(i+1)->sGained - 1 * findTeam(i+1)->sLost;
+			// }	
 
 			auto winner = findTeam(maxIndex(final_scores, 4)+1);
 			final_scores[maxIndex(final_scores, 4)] += WIN_REWARD;
@@ -488,71 +518,76 @@ class Game {
 			// cout<<"\t TSwitch: "<<winner->totalSwitch<<endl;
 			
 			//Score the players
-			p1[0]->dataMap.append("score", final_scores[0]);
-			p1[0]->dataMap.append("accuracy", accuracies[0]);
-			p1[0]->dataMap.append("totalShots", findTeam(1)->totalShots);
-			p1[0]->dataMap.append("totalHarvest", findTeam(1)->totalHarvest);
-			p1[0]->dataMap.append("totalSuccessfulShots", findTeam(1)->totalSuccessfulShots);
-			p1[0]->dataMap.append("totalGotHit", findTeam(1)->totalGotHit);
-			p1[0]->dataMap.append("totalSwitch", findTeam(1)->totalSwitch);
-			p1[0]->dataMap.append("totalFF", findTeam(1)->totalFF);
-			p1[0]->dataMap.append("totalBuilt", findTeam(1)->totalBuilt);
-			p1[0]->dataMap.append("totalStructFF", findTeam(1)->totalStructFF);
-			p1[0]->dataMap.append("totalStructHit", findTeam(1)->totalStructHit);
-			p1[0]->dataMap.append("totalStructGotHit", findTeam(1)->totalStructGotHit);
-			p1[0]->dataMap.append("sGained", findTeam(1)->sGained);
-			p1[0]->dataMap.append("sLost", findTeam(1)->sLost);
+			for(int i = 0; i < 3; i++)
+			{
+				p1[i]->dataMap.append("score", final_scores[0]);
+				p1[i]->dataMap.append("accuracy", accuracies[0]);
+				p1[i]->dataMap.append("totalShots", findTeam(1)->totalShots);
+				p1[i]->dataMap.append("totalHarvest", findTeam(1)->totalHarvest);
+				p1[i]->dataMap.append("totalSuccessfulShots", findTeam(1)->totalSuccessfulShots);
+				p1[i]->dataMap.append("totalGotHit", findTeam(1)->totalGotHit);
+				p1[i]->dataMap.append("totalSwitch", findTeam(1)->totalSwitch);
+				p1[i]->dataMap.append("totalFF", findTeam(1)->totalFF);
+				p1[i]->dataMap.append("totalBuilt", findTeam(1)->totalBuilt);
+				p1[i]->dataMap.append("totalStructFF", findTeam(1)->totalStructFF);
+				p1[i]->dataMap.append("totalStructHit", findTeam(1)->totalStructHit);
+				p1[i]->dataMap.append("totalStructGotHit", findTeam(1)->totalStructGotHit);
+				p1[i]->dataMap.append("sGained", findTeam(1)->sGained);
+				p1[i]->dataMap.append("sLost", findTeam(1)->sLost);
 
-			p2[0]->dataMap.append("score", final_scores[1]);
-			p2[0]->dataMap.append("accuracy", accuracies[1]);	
-			p2[0]->dataMap.append("totalShots", findTeam(2)->totalShots);
-			p2[0]->dataMap.append("totalHarvest", findTeam(2)->totalHarvest);
-			p2[0]->dataMap.append("totalSuccessfulShots", findTeam(2)->totalSuccessfulShots);
-			p2[0]->dataMap.append("totalGotHit", findTeam(2)->totalGotHit);
-			p2[0]->dataMap.append("totalSwitch", findTeam(2)->totalSwitch);
-			p2[0]->dataMap.append("totalFF", findTeam(2)->totalFF);
-			p2[0]->dataMap.append("totalBuilt", findTeam(2)->totalBuilt);
-			p2[0]->dataMap.append("totalStructFF", findTeam(2)->totalStructFF);
-			p2[0]->dataMap.append("totalStructHit", findTeam(2)->totalStructHit);
-			p2[0]->dataMap.append("totalStructGotHit", findTeam(2)->totalStructGotHit);
-			p2[0]->dataMap.append("sGained", findTeam(2)->sGained);
-			p2[0]->dataMap.append("sLost", findTeam(2)->sLost);
+				p2[i]->dataMap.append("score", final_scores[1]);
+				p2[i]->dataMap.append("accuracy", accuracies[1]);	
+				p2[i]->dataMap.append("totalShots", findTeam(2)->totalShots);
+				p2[i]->dataMap.append("totalHarvest", findTeam(2)->totalHarvest);
+				p2[i]->dataMap.append("totalSuccessfulShots", findTeam(2)->totalSuccessfulShots);
+				p2[i]->dataMap.append("totalGotHit", findTeam(2)->totalGotHit);
+				p2[i]->dataMap.append("totalSwitch", findTeam(2)->totalSwitch);
+				p2[i]->dataMap.append("totalFF", findTeam(2)->totalFF);
+				p2[i]->dataMap.append("totalBuilt", findTeam(2)->totalBuilt);
+				p2[i]->dataMap.append("totalStructFF", findTeam(2)->totalStructFF);
+				p2[i]->dataMap.append("totalStructHit", findTeam(2)->totalStructHit);
+				p2[i]->dataMap.append("totalStructGotHit", findTeam(2)->totalStructGotHit);
+				p2[i]->dataMap.append("sGained", findTeam(2)->sGained);
+				p2[i]->dataMap.append("sLost", findTeam(2)->sLost);
 
-			p3[0]->dataMap.append("score", final_scores[2]);
-			p3[0]->dataMap.append("accuracy", accuracies[2]);
-			p3[0]->dataMap.append("totalShots", findTeam(3)->totalShots);
-			p3[0]->dataMap.append("totalHarvest", findTeam(3)->totalHarvest);
-			p3[0]->dataMap.append("totalSuccessfulShots", findTeam(3)->totalSuccessfulShots);
-			p3[0]->dataMap.append("totalGotHit", findTeam(3)->totalGotHit);
-			p3[0]->dataMap.append("totalSwitch", findTeam(3)->totalSwitch);
-			p3[0]->dataMap.append("totalFF", findTeam(3)->totalFF);
-			p3[0]->dataMap.append("totalBuilt", findTeam(3)->totalBuilt);
-			p3[0]->dataMap.append("totalStructFF", findTeam(3)->totalStructFF);
-			p3[0]->dataMap.append("totalStructHit", findTeam(3)->totalStructHit);
-			p3[0]->dataMap.append("totalStructGotHit", findTeam(3)->totalStructGotHit);
-			p3[0]->dataMap.append("sGained", findTeam(3)->sGained);
-			p3[0]->dataMap.append("sLost", findTeam(3)->sLost);
+				p3[i]->dataMap.append("score", final_scores[2]);
+				p3[i]->dataMap.append("accuracy", accuracies[2]);
+				p3[i]->dataMap.append("totalShots", findTeam(3)->totalShots);
+				p3[i]->dataMap.append("totalHarvest", findTeam(3)->totalHarvest);
+				p3[i]->dataMap.append("totalSuccessfulShots", findTeam(3)->totalSuccessfulShots);
+				p3[i]->dataMap.append("totalGotHit", findTeam(3)->totalGotHit);
+				p3[i]->dataMap.append("totalSwitch", findTeam(3)->totalSwitch);
+				p3[i]->dataMap.append("totalFF", findTeam(3)->totalFF);
+				p3[i]->dataMap.append("totalBuilt", findTeam(3)->totalBuilt);
+				p3[i]->dataMap.append("totalStructFF", findTeam(3)->totalStructFF);
+				p3[i]->dataMap.append("totalStructHit", findTeam(3)->totalStructHit);
+				p3[i]->dataMap.append("totalStructGotHit", findTeam(3)->totalStructGotHit);
+				p3[i]->dataMap.append("sGained", findTeam(3)->sGained);
+				p3[i]->dataMap.append("sLost", findTeam(3)->sLost);
 
-			p4[0]->dataMap.append("score", final_scores[3]);
-			p4[0]->dataMap.append("accuracy", accuracies[3]);
-			p4[0]->dataMap.append("totalShots", findTeam(4)->totalShots);
-			p4[0]->dataMap.append("totalHarvest", findTeam(4)->totalHarvest);
-			p4[0]->dataMap.append("totalSuccessfulShots", findTeam(4)->totalSuccessfulShots);
-			p4[0]->dataMap.append("totalGotHit", findTeam(4)->totalGotHit);
-			p4[0]->dataMap.append("totalSwitch", findTeam(4)->totalSwitch);
-			p4[0]->dataMap.append("totalFF", findTeam(4)->totalFF);
-			p4[0]->dataMap.append("totalBuilt", findTeam(4)->totalBuilt);
-			p4[0]->dataMap.append("totalStructFF", findTeam(4)->totalStructFF);
-			p4[0]->dataMap.append("totalStructHit", findTeam(4)->totalStructHit);
-			p4[0]->dataMap.append("totalStructGotHit", findTeam(4)->totalStructGotHit);
-			p4[0]->dataMap.append("sGained", findTeam(4)->sGained);
-			p4[0]->dataMap.append("sLost", findTeam(4)->sLost);
+				p4[i]->dataMap.append("score", final_scores[3]);
+				p4[i]->dataMap.append("accuracy", accuracies[3]);
+				p4[i]->dataMap.append("totalShots", findTeam(4)->totalShots);
+				p4[i]->dataMap.append("totalHarvest", findTeam(4)->totalHarvest);
+				p4[i]->dataMap.append("totalSuccessfulShots", findTeam(4)->totalSuccessfulShots);
+				p4[i]->dataMap.append("totalGotHit", findTeam(4)->totalGotHit);
+				p4[i]->dataMap.append("totalSwitch", findTeam(4)->totalSwitch);
+				p4[i]->dataMap.append("totalFF", findTeam(4)->totalFF);
+				p4[i]->dataMap.append("totalBuilt", findTeam(4)->totalBuilt);
+				p4[i]->dataMap.append("totalStructFF", findTeam(4)->totalStructFF);
+				p4[i]->dataMap.append("totalStructHit", findTeam(4)->totalStructHit);
+				p4[i]->dataMap.append("totalStructGotHit", findTeam(4)->totalStructGotHit);
+				p4[i]->dataMap.append("sGained", findTeam(4)->sGained);
+				p4[i]->dataMap.append("sLost", findTeam(4)->sLost);
+			}
 		}
 
 
 		//Updates all the bullets
 		void updateBullets()
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::updateBullets()"<<endl;
 			vector<int> remove_ids;
 			//Update the bullets
 			for(auto bullet : bullets)
@@ -649,6 +684,8 @@ class Game {
 
 		bool isAgentThere(int x, int y)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::isAgentThere()"<<endl;
 			for(auto team : teams)
 				for(auto agent : team->agents)
 				{
@@ -663,6 +700,8 @@ class Game {
 		//Finds a team with a given ID
 		shared_ptr<struct Team> findTeam(int id)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::findTeam()"<<endl;
 			for(auto team : teams)
 			{
 				if (team->id == id)
@@ -674,6 +713,8 @@ class Game {
 		//removes a bullet from the game
 		void removeBullet(int id)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::removeBullet()"<<endl;
 			for(int i = 0; i<bullets.size(); i++)
 			{
 				if(bullets[i]->id == id)
@@ -687,6 +728,8 @@ class Game {
 		//Gives back the region_id (team_id) of a given coordination
 		int getRegion(int x, int y)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::getRegion()"<<endl;
 			if(!isInGrid(x, y))
 				return -1;
 			if(x <= gridSize/2 && y <= gridSize/2)
@@ -703,6 +746,8 @@ class Game {
 		//Sets all the grid values to -1 meaning it's inaccessible
 		void resetGrid()
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::resetGrid()"<<endl;
 			for (int i = 0; i < gridSize; i++)
 			{
 				for (int j = 0; j < gridSize; j++)
@@ -715,6 +760,8 @@ class Game {
 		//ToDo:: Fix this if necessary
 		void visualizeGrid()
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::visualizeGrid()"<<endl;
 			cout<<"\n\n";
 			for(int i = 0; i < gridSize; i++)
 			{
@@ -730,6 +777,8 @@ class Game {
 		//Does one of the possible actiosn
 		void doAction(shared_ptr<struct Agent> agent, shared_ptr<struct Team> team, int index, int cycle)
 		{		
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::doAction()"<<endl;
 			switch(index)
 			{
 				case 0:
@@ -788,6 +837,8 @@ class Game {
 					break;
 				default:
 					//Do Nothing
+					team->score -= NA_PENALTY/2;
+					team->sLost += NA_PENALTY/2;
 					break;
 			}
 		}
@@ -795,9 +846,15 @@ class Game {
 		//Shoots towards the front
 		void shoot(shared_ptr<struct Agent> agent, shared_ptr<struct Team> team, int cycle)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::shoot()"<<endl;
 			//Check if the team has enough resources
 			if(!hasShootingRes(team))
+			{
+				team->score -= NA_PENALTY;
+				team->sLost += NA_PENALTY;
 				return;
+			}
 			// Find the front space
 			int X, Y;
 			frontGridSpace(agent, X, Y);
@@ -817,6 +874,8 @@ class Game {
 			bullet->facingY = agent->facingY;
 			bullet->id = unique_number++;
 			bullets.push_back(bullet);	
+			team->score += SHOOT_SCORE;
+			team->sGained += SHOOT_SCORE;
 			// cout<<"here\n";
 			// cout<<cycle<<" id: "<<bullet->id<<" coord: "<<X<<","<<Y<<" agent: "<<agent->team_id<<"_"<<agent->id<<" "<<agent->x<<","<<agent->y<<endl;
 		}
@@ -824,29 +883,47 @@ class Game {
 		//Builds a structure in front
 		void build(shared_ptr<struct Agent> agent, shared_ptr<struct Team> team)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::build()"<<endl;
 			//Check if has enough res
 			if(!hasBuildingRes(team))
+			{
+				team->score -= NA_PENALTY;
+				team->sLost += NA_PENALTY;
 				return;
+			}
 			//Find the space in front
 			int X, Y;
 			frontGridSpace(agent, X, Y);
 			//Check if the front space is in grid
 			if(!isInGrid(X, Y))
+			{
+				team->score -= NA_PENALTY;
+				team->sLost += NA_PENALTY;	
 				return;
+			}
 			if(grid[X][Y] == EMPTY && !isAgentThere(X, Y))
 			{
 				//Update the grid
 				grid[X][Y] = STRUCT; 
 				//substract the cost
 				team->resource -= BUILD_RES;
+				team->score += BUILD_SCORE;
+				team->sGained += BUILD_SCORE;
 				// Log
 				team->totalBuilt++;
+			}else
+			{
+				team->score -= NA_PENALTY;
+				team->sLost += NA_PENALTY;
 			}
 		}
 
 		//Harvests the food in front
 		void harvest(shared_ptr<struct Agent> agent, shared_ptr<struct Team> team)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::harvest()"<<endl;
 			int X, Y;
 			frontGridSpace(agent, X, Y);
 			if(isInGrid(X, Y) && grid[X][Y] == FOOD)
@@ -855,15 +932,24 @@ class Game {
 				team->score += RES_SCORE;
 				team->sGained += RES_SCORE;
 				grid[X][Y] = EMPTY;
+				// cout<<getRegion(X, Y)<<" team id is: "<<team->id<<" agent id is: "<<agent->team_id<<" x,y"<<X<<","<<Y<<endl;
 				// cout<<"Team: "<<team->id<<" Agent: "<<agent->id<<" Pos: "<<agent->x<<", "<<agent->y<<" Food: "<<X<<", "<<Y<<endl;
 				team->totalHarvest++;
 				team->hasFood = false;
+				placeFood(team->id);
+				team->hasFood = true;
+			}else
+			{
+				team->score -= NA_PENALTY;
+				team->sLost += NA_PENALTY;
 			}
 		}
 
 		//Turns the agent 45 degrees to the left
 		void turnL(shared_ptr<struct Agent> agent) //Todo:: The most stupid algorithm ever. Completely hard-coded. A dangerous game is being played here! Tripple check!
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::turnL()"<<endl;
 			//ToDo:: Dumb algorithm
 			/*
 			how facing direction works:
@@ -912,6 +998,8 @@ class Game {
 		//Turns the agent 45 degrees to the Right
 		void turnR(shared_ptr<struct Agent> agent)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::turnR()"<<endl;
 			//ToDo:: Dumb algorithm
 			/*
 			how facing direction works:
@@ -960,6 +1048,8 @@ class Game {
 		//Moves the agent to the space in front if possible
 		void move(shared_ptr<struct Agent> agent)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::move()"<<endl;
 			int X, Y; 
 			frontGridSpace(agent, X, Y);
 			if(isInGrid(X, Y) && grid[X][Y] == EMPTY && !isAgentThere(X, Y)) 
@@ -971,12 +1061,18 @@ class Game {
 				agent->y = Y;
 				findTeam(agent->team_id)->score += MOVE_REWARD;
 				findTeam(agent->team_id)->sGained += MOVE_REWARD;
+			}else
+			{
+				findTeam(agent->team_id)->score -= NA_PENALTY;
+				findTeam(agent->team_id)->sLost += NA_PENALTY;
 			}
 		}
 
 		//Returns the index of the maximum value of the input array a
 		int maxIndex(double a[], int length)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::maxIndex()"<<endl;
 			double max = a[0];
 			int biggest = 0;
 			for(int i=0; i<length; i++)
@@ -993,6 +1089,8 @@ class Game {
 		//Checks if the input x and y is in the grid
 		bool isInGrid(int x, int y)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::isInGrid()"<<endl;
 			if(x >= 0 && y >= 0 && x < gridSize && y < gridSize)
 				return true;
 			return false;
@@ -1001,6 +1099,8 @@ class Game {
 		//returns T if enough resource for shooting is available
 		double hasShootingRes(shared_ptr<struct Team> team)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::hasShootingRes()"<<endl;
 			if(team->resource >= SHOOT_RES)
 				return T;
 			return F;
@@ -1009,6 +1109,8 @@ class Game {
 		//returns T if enough resource for building is available. T can be used instead of true but it throws a warning. 
 		double hasBuildingRes(shared_ptr<struct Team> team)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::hasBuildingRes()"<<endl;
 			if(team->resource >= BUILD_RES)
 				return T;
 			return F;
@@ -1017,6 +1119,8 @@ class Game {
 		//Returns X and Y of the grid space the agent is facing 
 		void frontGridSpace(shared_ptr<struct Agent> agent, int &X, int &Y)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::frontGridSpace()"<<endl;
 			X = agent->x + agent->facingX;
 			Y = agent->y + agent->facingY;
 		}
@@ -1024,6 +1128,8 @@ class Game {
 		//Returns X and Y of the grid space the bullet is facing 
 		void frontGridSpaceB(shared_ptr<struct Bullet> bullet, int &X, int &Y)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::frontGridSpaceB()"<<endl;
 			X = bullet->x + bullet->facingX;
 			Y = bullet->y + bullet->facingY;
 		}
@@ -1031,6 +1137,8 @@ class Game {
 		//Returns the vision array of an agent
 		vector<double> getVision(shared_ptr<struct Agent> agent, int mode = 0)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::getVision()"<<endl;
 			int x = agent->x;
 			int y = agent->y;
 			vector<double> vision;
@@ -1093,6 +1201,8 @@ class Game {
 		//Checks if there's a bullet in a given coord 
 		bool isThereABullet(int x, int y)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::isThereABullet()"<<endl;
 			for(auto bullet : bullets)
 			{
 				if(bullet->x == x && bullet->y == y)
@@ -1105,6 +1215,8 @@ class Game {
 
 		int freeSpaceCount(int minX, int maxX, int minY, int maxY)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::freeSpaceCount()"<<endl;
 			int count = 0;
 			for(int i = minX; i <= maxX; i++)
 			{
@@ -1120,72 +1232,93 @@ class Game {
 		//Places a food chunk for team_id
 		void placeFood(int team_id)
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::placeFood()"<<endl;
 			int minX = 0, maxX = 0;
 			int minY = 0, maxY = 0;
-			int i = team_id - 1;
-			if(i == 0) //Team1 NorthWest Team Cliff
+			if(team_id == 1) //Team1 NorthWest Team Cliff
 			{
 				minX = 0;
 				minY = 0;
 				maxX = gridSize/4;
 				maxY = gridSize/4;
-			}else if(i == 1) //Team2 NorthEast Team Darren
+			}else if(team_id == 2) //Team2 NorthEast Team Darren
 			{
 				minX = 0;
 				minY = gridSize-gridSize/4;
 				maxX = gridSize/4;
 				maxY = gridSize;
-			}else if(i == 2) //Team3 SouthWest Team eLe
+			}else if(team_id == 3) //Team3 SouthWest Team eLe
 			{
 				minX = gridSize-gridSize/4;
 				minY = 0;
 				maxX = gridSize;
 				maxY = gridSize/4;
-			}else if(i == 3) //Team4 SouthEast Team Vinny
+			}else if(team_id == 4) //Team4 SouthEast Team Vinny
 			{
 				minX = gridSize-gridSize/4;
 				minY = gridSize-gridSize/4;
 				maxX = gridSize;
 				maxY = gridSize;
+			}else 
+			{
+				cout<<"wrong team id for placing the food"<<endl;
+				exit(1);
 			}
 
-			//ToDo:: There are a lot better algorithms in order to do this
-			vector<int> Xs;
-			vector<int> Ys;
-			
-			
-			//Find all the empty spaces
-			for(int i = minX; i <= maxX; i++)
+			bool hasFood = false;
+			for(int i = minX; i< maxX; i++)
 			{
-				for(int j = minY; j <= maxY; j++)
+				for(int j = minY; j < maxY; j++)
 				{
-					if(grid[i][j] == EMPTY && !isAgentThere(i, j))
+					if(grid[i][j] == FOOD)
 					{
-						Xs.push_back(i);
-						Ys.push_back(j);
+						hasFood = true;
 					}
 				}
 			}
 
-			if(Xs.size() == 0)
-				return;
-
-			//Choose a random empty coord
-			int randomEmptyPos = Random::getInt(0, Xs.size()-1);
-			//Double check if the space is empty
-			if(grid[Xs[randomEmptyPos]][Ys[randomEmptyPos]] != EMPTY || isAgentThere(Xs[randomEmptyPos], Ys[randomEmptyPos]))
+			if(!hasFood)
 			{
-				cout<<"For some reason a space which should have been EMPTY is not"<<endl;
-			}
-			//Place the food
-			grid[Xs[randomEmptyPos]][Ys[randomEmptyPos]] = FOOD;
-			findTeam(team_id)->hasFood = true;
+				int emptyPositions[1000][2]; 
+				int counter = 0;
+				for(int i = minX; i <= maxX; i++)
+				{
+					for(int j = minY; j <= maxY; j++)
+					{
+						if(grid[i][j] == EMPTY && !isAgentThere(i, j) && getRegion(i, j) == team_id)
+						{
+							emptyPositions[counter][0] = i;
+							emptyPositions[counter][1] = j;
+							counter++;
+						}
+					}
+				}
+
+				if(counter == 0)
+					return;
+				//Choose a random empty coord
+				int randomEmptyPos = Random::getInt(0, counter-1);
+				int x = emptyPositions[randomEmptyPos][0];
+				int y = emptyPositions[randomEmptyPos][1];
+				//Double check if the space is empty
+				if(grid[x][y] != EMPTY || isAgentThere(x, y))
+				{
+					cout<<"For some reason a space which should have been EMPTY is not"<<endl;
+				} else if(getRegion(x, y) == team_id)
+				{
+					//Place the food
+					grid[x][y] = FOOD;
+				}
+			}	
 			
 		}
 
 		//Initializes the world's cordoned off regions 
 		void initGrid()
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::initGrid()"<<endl;
 			//Reset the whole grid to 0 (unavailable space)
 			resetGrid();
 			//Now we need to setup the regions for the four agent groups. I'm not gonna make everything parametrized cause it will make the world way too
@@ -1206,6 +1339,8 @@ class Game {
 		//Defines agents and gives random position to them and places the four food chunks!
 		void initTeams()
 		{
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::Game::Game()"<<endl;
 			for(int i = 0; i < 4; i++)
 			{
 				int minX = 0, maxX = 0;
@@ -1234,19 +1369,6 @@ class Game {
 					minY = gridSize-gridSize/4;
 					maxX = gridSize;
 					maxY = gridSize;
-				}
-
-				//Place food for every team
-				while(true)
-				{
-					int x = Random::getInt(minX, maxX-1);
-					int y = Random::getInt(minY, maxY-1);
-					
-					if(grid[x][y] == EMPTY && !isAgentThere(x, y))
-				 	{
-				 		grid[x][y] = FOOD; 
-				 		break;
-				 	}
 				}
 
 				shared_ptr<struct Team> team { new struct Team };
@@ -1289,13 +1411,16 @@ class Game {
 				team->id = i+1;
 				team->hasFood = true;
 				teams.push_back(team);
-			}
+
+				placeFood(i+1);
+			}	
 		}
 };
 
 CoopWorld::CoopWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
-
+			if(DEBUG_MODE)
+				cout<<"CoopWorld::CoopWorld() (constructor)"<<endl;
 	// columns to be added to ave file
 	popFileColumns.clear();
 	popFileColumns.push_back("score");
@@ -1316,6 +1441,8 @@ CoopWorld::CoopWorld(shared_ptr<ParametersTable> _PT) :
 }
 
 void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
+	if(DEBUG_MODE)
+		cout<<"CoopWorld::Game::evaluate()"<<endl;
 	// cout<<endl<<endl<<endl<<"evaluation starts: "<<endl<<endl<<endl;
 	// visualize = 1;
 	auto population = groups[groupNamePL->get(PT)]->population;
@@ -1325,8 +1452,16 @@ void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, in
  	    exit(1);
 	}
 	int exp_number = 0;
-	for (int i = 0; i < population.size(); i=i+4)
+
+	if(population.size() < 12)
 	{
+		cout << "Population size for the Coop world should be at least 12. Exiting!" << endl;
+ 	    exit(1);
+	}
+	for (int i = 0; i < population.size(); )
+	{
+		if(i >= population.size())
+			break;
 		population[i]->brains[brainNamePL->get(PT)]->resetBrain();
 		// cout<<"starts giving pop thingies\n";
 		//Each four organisms compete against eachother. I made four variables instead of a vector of vectors for easier understanding of the code
@@ -1335,43 +1470,60 @@ void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, in
 		vector<shared_ptr<Organism>> p2;
 		vector<shared_ptr<Organism>> p3;
 		vector<shared_ptr<Organism>> p4;
-
-		p1.push_back(population[i]);
-		p2.push_back(population[i+1]);
-		p3.push_back(population[i+2]);
-		p4.push_back(population[i+3]);
-
-		//This way it's easy to give the agents three different brains
-		for (int i = 0; i < 2; i++)
+		//ToDo:: fix the condition
+		if(true)
 		{
-			p1.push_back(population[i]->makeCopy());
-			p2.push_back(population[i+1]->makeCopy());
-			p3.push_back(population[i+2]->makeCopy());
-			p4.push_back(population[i+3]->makeCopy());
+			p1.push_back(population[i]);
+			p2.push_back(population[i+1]);
+			p3.push_back(population[i+2]);
+			p4.push_back(population[i+3]);
+			//This way it's easy to give the agents three different brains
+			for (int i = 0; i < 2; i++)
+			{
+				p1.push_back(population[i]->makeCopy());
+				p2.push_back(population[i+1]->makeCopy());
+				p3.push_back(population[i+2]->makeCopy());
+				p4.push_back(population[i+3]->makeCopy());
+			}
+			i = i + 4;
+		}else {
+			if (population.size()%12 != 0)
+			{
+				cout << "Population size for the Coop world should be dividable by 12. Exiting!" << endl;
+		 	    exit(1);
+			}
+			for(int kh = 0; kh < 3; kh++)
+			{
+				p1.push_back(population[i+kh]);
+				p2.push_back(population[i+3+kh]);
+				p3.push_back(population[i+6+kh]);
+				p4.push_back(population[i+9+kh]);
+			}
+			i = i + 12;
 		}
-
 		//Get the world parameters
 		//SHOOTING Parameters
 		double HIT_SCORE = hitScorePL->get(PT); //Score gained for successful agent hits
-		double SHOOT_RES = shootResPL->get(PT);; //Resource needed for shooting
-		double HIT_PENALTY = hitPenaltyPL->get(PT);; //Penalty for getting shot
-		double FF_PENALTY = ffPenaltyPL->get(PT);; //Penalty for friendly fire
+		double SHOOT_RES = shootResPL->get(PT); //Resource needed for shooting
+		double HIT_PENALTY = hitPenaltyPL->get(PT); //Penalty for getting shot
+		double FF_PENALTY = ffPenaltyPL->get(PT); //Penalty for friendly fire
 		//BUILDING Parameters
-		double STRUCT_HIT_SCORE = structHitScorePL->get(PT);; //Score gained for successfully hitting structures
-		double BUILD_RES = buildResPL->get(PT);; //Resource needed for building
-		double STRUCT_HIT_PENALTY = structHitPenaltyPL->get(PT);; //Penalty for shooting at own structures
-		double STRUCT_DEFEND = structDefendPL->get(PT);; //Reward for successfully defending the bullets
+		double STRUCT_HIT_SCORE = structHitScorePL->get(PT); //Score gained for successfully hitting structures
+		double BUILD_RES = buildResPL->get(PT); //Resource needed for building
+		double STRUCT_HIT_PENALTY = structHitPenaltyPL->get(PT); //Penalty for shooting at own structures
+		double STRUCT_DEFEND = structDefendPL->get(PT); //Reward for successfully defending the bullets
 		//HARVESTING Parameters
-		double RES_SCORE = resScorePL->get(PT);; //Score gained for harvesting 
-		double FOOD_REWARD = foodRewardPL->get(PT);; //The amount of resource reward for harvesting
+		double RES_SCORE = resScorePL->get(PT); //Score gained for harvesting 
+		double FOOD_REWARD = foodRewardPL->get(PT); //The amount of resource reward for harvesting
 		//MOTIVATION Parameters
-		double MOVE_REWARD = moveRewardPL->get(PT);;
-		double WIN_REWARD = winRewardPL->get(PT);; //Reward for winning the game -- Cancer parameter...
-		double SWITCH_PENALTY = switchPenaltyPL->get(PT);; //Penalty of task switching
-
-		exp_number++;
-
-		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize, HIT_SCORE, SHOOT_RES, HIT_PENALTY, FF_PENALTY, STRUCT_HIT_SCORE, BUILD_RES, STRUCT_HIT_PENALTY, STRUCT_DEFEND, RES_SCORE, FOOD_REWARD, MOVE_REWARD, WIN_REWARD, SWITCH_PENALTY);	
+		double MOVE_REWARD = moveRewardPL->get(PT);
+		double WIN_REWARD = winRewardPL->get(PT); //Reward for winning the game -- Cancer parameter...
+		double SWITCH_PENALTY = switchPenaltyPL->get(PT); //Penalty of task switching
+		double BUILD_SCORE = buildScorePL->get(PT);
+		double SHOOT_SCORE = shootScorePL->get(PT);
+		double NA_PENALTY = naPenaltyPL->get(PT);
+		exp_number++;	
+		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize, HIT_SCORE, SHOOT_RES, HIT_PENALTY, FF_PENALTY, STRUCT_HIT_SCORE, BUILD_RES, STRUCT_HIT_PENALTY, STRUCT_DEFEND, RES_SCORE, FOOD_REWARD, MOVE_REWARD, WIN_REWARD, SWITCH_PENALTY, BUILD_SCORE, SHOOT_SCORE, NA_PENALTY);	
 	}
 }
 
