@@ -77,20 +77,20 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT){
 
 
 //create an archivist
-shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT, string groupPrefix = ""){
+shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, string _maxDMValue, shared_ptr<ParametersTable> PT, string groupPrefix = ""){
   shared_ptr<DefaultArchivist> newArchivist;
   bool found = false;
   string archivistType = DefaultArchivist::Arch_outputMethodStrPL->get(PT);
   if (archivistType == "LODwAP") {
-    newArchivist = make_shared<LODwAPArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
+    newArchivist = make_shared<LODwAPArchivist>(popFileColumns, _maxDMValue, PT, groupPrefix);
     found = true;
     }
   if (archivistType == "SSwD") {
-    newArchivist = make_shared<SSwDArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
+    newArchivist = make_shared<SSwDArchivist>(popFileColumns, _maxDMValue, PT, groupPrefix);
     found = true;
     }
   if (archivistType == "Default") {
-    newArchivist = make_shared<DefaultArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
+    newArchivist = make_shared<DefaultArchivist>(popFileColumns, _maxDMValue, PT, groupPrefix);
     found = true;
     }
   if (!found){

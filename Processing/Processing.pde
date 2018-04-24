@@ -2,7 +2,7 @@
 Cell[][] grid;
 PImage img;
 String fileName = "Results";
-String file = "900_1";
+String file = "3000_1";
 //Results
 //200_1 best harvesters ever
 //700_1 shooter harvester

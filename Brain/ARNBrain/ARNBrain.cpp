@@ -21,6 +21,7 @@ shared_ptr<ParameterLink<int>> ARNBrain::outputModePL = Parameters::register_par
 shared_ptr<ParameterLink<int>> ARNBrain::inputModePL = Parameters::register_parameter("BRAIN_ARN-inputMode", 0, "input mode-> 0: concentration mode 1: sequence mode");
 shared_ptr<ParameterLink<double>> ARNBrain::extraLimitPL = Parameters::register_parameter("BRAIN_ARN-extraLimit", 0.4, "maximum concentration allowed for extra (input) proteins");
 
+
 //Different gene types
 const int TF_GENE = 1; // transcription factors - normal genes
 const int EXTRA_GENE = 2; // extra - input genes
@@ -28,7 +29,7 @@ const int P_GENE = 3; // producet - output genes
 
 const bool ARN_DEBUG_SUPER = false;
 const bool ARN_DEBUG = false;
-const bool ARN_SHOW_OUTPUT = true;
+const bool ARN_SHOW_OUTPUT = false;
 
 // int brain_iteration_counter = 0;
 int inputIndex = 0;
@@ -40,7 +41,6 @@ struct Gene {
 	double concentration = 0;
 	int type;
 };
-
 
 ARNBrain::ARNBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
@@ -55,7 +55,6 @@ ARNBrain::ARNBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 	outputMode = outputModePL->get(myPT);
 	outputMax = outputMaxPL->get(myPT);
 	outputMin = outputMinPL->get(myPT);
-	// cout<<"-d "<<delta<<" -b "<<beta<<" -e "<<extraLimit<<" -in "<<inputMode<<" -it "<<iterations<<" -om "<<outputMode<<" -max "<<outputMax<<" -min "<<outputMin<<endl;
 	// Columns to be added to ave file
 	popFileColumns.clear();
 }
@@ -73,6 +72,21 @@ ARNBrain::ARNBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, 
 	outputMode = outputModePL->get(myPT);
 	outputMax = outputMaxPL->get(myPT);
 	outputMin = outputMinPL->get(myPT);
+	popFileColumns.clear();
+
+	extraGenes.clear();
+	pGenes.clear();
+	//Add as much input genes as needed to the brain with an initial concentration of 0.0'
+	for(int i = 0; i<nrInputValues; i++)
+	{
+		addInput(0.0, i);
+	}
+
+	for(int i = 0; i<nrOutputValues; i++)
+	{
+		addOutput(0, i);
+	}
+
 	// Detect all the genes in the genome
 	// cout<<"detecting Genes: ";
 	detectGenes(_genomes);
@@ -93,7 +107,7 @@ void ARNBrain::calcWeights()
 {	
 	if(ARN_DEBUG || ARN_DEBUG_SUPER)
 		cout<<"ARNBrain::calcWeights() "<<endl;
-	// cout<<"genes.size="<<genes.size()<<" TF.size="<<tfGenes.size()<<" P.size="<<pGenes.size()<<" EXTRA.size="<<extraGenes.size()<<endl<<endl;
+
 	/* g e t t i n g r e g u l a t e d 
 	r           P & TF
 	e
@@ -110,6 +124,7 @@ void ARNBrain::calcWeights()
 	vector<vector<double>> a(genes.size() - pGenes.size(), vector<double>(genes.size() - extraGenes.size())); // cause extra genes dont get regulated
 	vector<vector<double>> b(genes.size() - pGenes.size(), vector<double>(genes.size() - extraGenes.size())); // cause extra genes dont get regulated
 	vector<vector<double>> c(genes.size() - pGenes.size(), vector<double>(genes.size() - extraGenes.size()));
+	weight_matrix = c;
 	// Initialize the weight matrixes with 0.0
 	for(int i = 0; i < genes.size() - pGenes.size(); i++)
 	{
@@ -117,7 +132,7 @@ void ARNBrain::calcWeights()
 		{
 			a[i][j] = 0;	
 			b[i][j] = 0;
-			c[i][j] = 0;
+			weight_matrix[i][j] = 0;
 		}
 	}
 
@@ -125,7 +140,7 @@ void ARNBrain::calcWeights()
 	int maxEnhancer = 0;
 	int maxInhibitor = 0;
 
-	int counter = 0;
+	int counter = 0; //tf and extra
 	for(int i = 0; i < genes.size(); i++)
 	{
 		if(genes[i]->type != P_GENE) // cause P genes don't regulate
@@ -146,24 +161,6 @@ void ARNBrain::calcWeights()
 		}
 	}
 
-	// for(int i = 0; i < genes.size()- pGenes.size(); i++)
-	// {
-	// 	for(int j = 0; j < (genes.size() - extraGenes.size()); j++)
-	// 	{
-	// 		cout<<a[i][j]<<" ";
-	// 	}
-	// 	cout<<endl;
-	// }
-	// cout<<endl;
-	// for(int i = 0; i < genes.size()- pGenes.size(); i++)
-	// {
-	// 	for(int j = 0; j < (genes.size() - extraGenes.size()); j++)
-	// 	{
-	// 		cout<<b[i][j]<<" ";
-	// 	}
-	// 	cout<<endl;
-	// }
-
 	for(int i = 0; i < genes.size()- pGenes.size(); i++)
 	{
 		for(int j = 0; j < (genes.size() - extraGenes.size()); j++)
@@ -179,28 +176,19 @@ void ARNBrain::calcWeights()
 
 	enh_matrix = a;
 	inh_matrix = b;
-	weight_matrix = c;
-	// for(int i = 0; i < genes.size()- pGenes.size(); i++)
-	// {
-	// 	for(int j = 0; j < (genes.size() - extraGenes.size()); j++)
-	// 	{
-	// 		cout<<enh_matrix[i][j]<<" ";
-	// 	}
-	// 	cout<<endl;
-	// }
-		// cout<<endl;
 
-	// cout<<" weight matrix: "<<endl;
 	for(int i = 0; i < genes.size()- pGenes.size(); i++)
 	{
 		for(int j = 0; j < (genes.size() - extraGenes.size()); j++)
 		{
 			weight_matrix[i][j] = enh_matrix[i][j] - inh_matrix[i][j];
-			// cout<<weight_matrix[i][j]<<"  ";
 		}
-		// cout<<"\n";
 	}
-	// cout<<endl;
+	if(weight_matrix.size() < 1)
+	{
+		cout<<"ARNBrain: I undexpectadly couldn't make the weight_matrix! Exiting!"<<endl;
+		exit(1);
+	}
 }
 
 int ARNBrain::sumXOR(int a[], int b[])
@@ -218,8 +206,8 @@ void ARNBrain::detectGenes(unordered_map<string, shared_ptr<AbstractGenome>>& _g
 		if(ARN_DEBUG || ARN_DEBUG_SUPER)
 			cout<<"ARNBrain::detectGenes() "<<endl;
 		genes.clear();
-		// i think its removing genes. from other vectors as well
 		tfGenes.clear();
+
 		// Enhancer 32bit - Inhibitor 32bit - Promoter 32bit follows XYZ01010101 rule (decimal = 85)
 		auto genome = _genomes[genomeNamePL->get(PT)];
 		if(genome == nullptr)
@@ -291,8 +279,10 @@ void ARNBrain::detectGenes(unordered_map<string, shared_ptr<AbstractGenome>>& _g
 			genes.push_back(gene);
 		for(auto gene : extraGenes)
 			genes.push_back(gene);
+		
+		// cout<<"Size of => genes: "<<genes.size()<<" extras: "<<extraGenes.size()<<" tfGenes: "<<tfGenes.size()<<" pGenes: "<<pGenes.size()<<endl;
+
 		updateConcentrations(true);
-		// cout<<"detectGenes coun: "<<coun<<" genes.size(): "<<genes.size()<<" extraGenes.size(): "<<extraGenes.size()<<endl;
 }
 
 void ARNBrain::addInput(double concentration, int signature)
@@ -303,15 +293,18 @@ void ARNBrain::addInput(double concentration, int signature)
 	shared_ptr<struct Gene> gene { new struct Gene };
 	for(int i = 0; i < 32; i++)
 	{
-		if(i <= signature)
-			gene->enhancer[i] = 1;
-		else
-			gene->enhancer[i] = 0;
-		if(i > signature)
-			gene->inhibitor[i] = 1;
-		else
-			gene->inhibitor[i] = 0;
-		gene->protein[i] = (i % 2 == 0)?1:0;
+		// if(i <= signature)
+		// 	gene->enhancer[i] = 1;
+		// else
+		// 	gene->enhancer[i] = 0;
+		// if(i > signature)
+		// 	gene->inhibitor[i] = 1;
+		// else
+		// 	gene->inhibitor[i] = 0;
+		// gene->protein[i] = (i % 2 == 0)?1:0;
+		gene->enhancer[i] = Random::getInt(0,1);
+		gene->inhibitor[i] = Random::getInt(0,1); 
+		gene->protein[i] = Random::getInt(0,1);
 	}
 	gene->concentration = concentration;
 	gene->type = EXTRA_GENE;
@@ -344,27 +337,9 @@ void ARNBrain::addOutput(double concentration, int signature)
 // Normalizes the concentration levels of all the protein types
 void ARNBrain::updateConcentrations(bool initializing)
 {
-	cout<<"\nBefore concentration update \nExtra: ";
-	for(auto gene : extraGenes)
-	{
-		cout<<gene->concentration<<" ";
-	}
-	cout<<endl;
-	cout<<"TF: ";
-	for(auto gene : tfGenes)
-	{
-		cout<<gene->concentration<<" ";
-	}
-	cout<<endl;
-	cout<<"P: ";
-	for(auto gene : pGenes)
-	{
-		cout<<gene->concentration<<" ";
-	}
-	cout<<endl;
 	if(ARN_DEBUG || ARN_DEBUG_SUPER)
-		cout<<"ARNBrain::updateConcetrations() "<<endl;
-	// cout<<"updateConcetrations: "<<endl;
+		cout<<"ARNBrain::updateConcetrations() Mode: "<<initializing<<endl;
+
 	if(initializing)
 	{
 		for(auto gene : tfGenes)
@@ -400,11 +375,6 @@ void ARNBrain::updateConcentrations(bool initializing)
 	// Concentration values will indeed change. We need to therefore normalize them	
 	double totalTF = 0, totalP = 0, totalExtra = 0;
 
-	if(initializing)
-		cout<<"initializing"<<endl;
-	else
-		cout<<"updating concentrations"<<endl;
-
 	for(auto gene : extraGenes)
 	{
 		totalExtra += gene->concentration;
@@ -420,47 +390,15 @@ void ARNBrain::updateConcentrations(bool initializing)
 		totalP += gene->concentration;
 	}
 
-	cout<<" totalTF " << totalTF << " totalExtra " << totalExtra << " totalP " << totalP<<endl;
-	for(auto gene : genes)
-	{
-		if(gene->type == TF_GENE)
-		{
-			gene->concentration *= (1.0 - totalExtra);
-			if(totalTF == 0)
-			{
-				cout<<"ARNBrain: The sum of all of my TF proteins is zero! Indeed I have failed... Exiting!"<<endl;
-				exit(1);
-			}
-			gene->concentration = gene->concentration / totalTF;
-		}else if(gene->type == P_GENE)
-		{
-			if(totalP == 0)
-			{
-				cout<<"ARNBrain: The sum of all of my P proteins is zero! Indeed I have failed... Exiting!"<<endl;
-				exit(1);
-			}
-			gene->concentration = gene->concentration / totalP;
-		}
-	}
-
-	cout<<"After concentration update \nExtra: ";
-	for(auto gene : extraGenes)
-	{
-		cout<<gene->concentration<<" ";
-	}
-	cout<<endl;
-	cout<<"TF: ";
 	for(auto gene : tfGenes)
 	{
-		cout<<gene->concentration<<" ";
+		gene->concentration = gene->concentration / totalTF;
 	}
-	cout<<endl;
-	cout<<"P: ";
+
 	for(auto gene : pGenes)
 	{
-		cout<<gene->concentration<<" ";
+		gene->concentration = gene->concentration / totalP;
 	}
-	cout<<endl;
 }
 
 void ARNBrain::setInput(double value)
@@ -502,10 +440,13 @@ void ARNBrain::resetBrain() {
 	AbstractBrain::resetBrain();
 }
 
-void ARNBrain::update() {
-	if(ARN_DEBUG || ARN_DEBUG_SUPER)
-		cout<<"ARNBrain::update() "<<endl;
-
+vector<double> ARNBrain::normalizedInput()
+{
+	if(inputValues.size() < 1)
+	{
+		cout<<"ARNBrain: I see no inputValues"<<endl;
+		exit(1);
+	}
 	//Normalize the inputs
 	//find the smallest and the largest inputs
 	double smallestInput = inputValues[0];
@@ -519,7 +460,7 @@ void ARNBrain::update() {
 	}
 
 	vector<double> normalizedInputs;
-	//Normalize the input values
+
 	if(nrInputValues == 1) //only one input
 	{
 		if(inputValues[0] < 0)
@@ -533,121 +474,109 @@ void ARNBrain::update() {
 		{
 			sumInputs += inputValues[i];	
 		}
-
 		for(int i = 0; i < nrInputValues; i++)
 		{
 			normalizedInputs.push_back(inputValues[i]/sumInputs);
 		}
 	}
 
-	if(ARN_SHOW_OUTPUT)
-	{
-		cout<<"\n#################ARNBrain Inputs: ";
-	}
+	return normalizedInputs;
+}
 
-	// Update the concentration of the extra inputs
+void ARNBrain::regulate()
+{
+	if(ARN_DEBUG || ARN_DEBUG_SUPER)
+		cout<<"ARNBrain::regulate()"<<endl;
+	for(int iter = 0; iter < iterations; iter++)
+	{
+		vector<double> updated_conc;
+		// TF + P
+		for(int j = 0; j < weight_matrix[0].size(); j++)
+		{
+			double signal = 0.0;
+			int counter = 0;
+
+			// TF + EXTRA
+			for(int i = 0; i < genes.size(); i++)
+			{
+				if(genes[i]->type != P_GENE)
+				{
+					signal += genes[i]->concentration * weight_matrix[counter][j];
+					counter++;
+				}
+			}
+
+			if(genes[j]->type == EXTRA_GENE)
+			{
+				cout<<"ARNBrain:: My genes aren't ordered correctly (TF->P->EXTRA)! Exiting!"<<endl;
+				exit(1);
+			}
+
+			signal = signal / (double) (weight_matrix[0].size());
+			double new_conc = signal * delta + genes[j]->concentration;
+			// cout<<"new_conc: "<<new_conc<<" signal: "<<signal<<" delta: "<<delta<<" conc: "<<genes[j]->concentration<<endl;
+			updated_conc.push_back(new_conc);
+		}
+
+		for(int j = 0; j < weight_matrix[0].size(); j++)
+		{
+			if(updated_conc[j] < 1e-10)
+				updated_conc[j] = 1e-10;
+			genes[j]->concentration = updated_conc[j];
+		}
+		updateConcentrations(false);
+	}			
+}
+
+void ARNBrain::update() {
+	if(ARN_DEBUG || ARN_DEBUG_SUPER)
+		cout<<"ARNBrain::update() "<<endl;
+	
+	//Normalize the input values
+	vector<double> normalizedInputs = normalizedInput();
+
+	// Start setting up the inputs.
+	if(ARN_SHOW_OUTPUT)
+		cout<<"\n#################ARNBrain Inputs: ";
+
+	// Update the concentration of the extra proteins
 	inputIndex = 0;
 	for(int i = 0; i < nrInputValues; i++)
 	{
 		if(ARN_SHOW_OUTPUT)
-		{
-			cout<<normalizedInputs[i]<<" ";
-		}
-		setInput(normalizedInputs[i]);
+			cout<<normalizedInputs[i]<<" | ";
 		//Set the input concentrations.
-		// cout<<"input"<<i<<": "<<inputValues[i]<<"\t";
+		setInput(normalizedInputs[i]);		
 	}
 
 	if(ARN_SHOW_OUTPUT)
-	{	
 		cout<<endl;
-	}
-
-	// double sumz = 0;
-	// for(auto gene : extraGenes)
-	// 	sumz += gene->concentration;
-
-	// cout<<"BIG COUT!!! EXTRA GENES TOTAL CONC... IS: "<<sumz<<endl;
 
 	//#########################################################This is where the regulation happens
-	// cout<<" iterations: "<<iterations<<endl;
-	if(ARN_DEBUG || ARN_DEBUG_SUPER)
-		cout<<"ARNBrain::update() Regulation Starts"<<endl;
-			cout<<"ARNBrain::update() Regulation Starts"<<endl;
 
-	for(int iter = 0; iter < iterations; iter++)
-	{
-		// cout<<"iterations: "<<iter<<endl;
-		vector<double> updates;
-		// Iterate through the genes which are gonna get updated
-		int genes_size = genes.size();
-		int extra_size = extraGenes.size();
-		int size_difference = genes_size - extra_size;
-		for(int j = 0; j < size_difference;j++)
-		{
-			// cout<<j<<" < "<<(genes.size() - extraGenes.size())<<" while genes size: "<<genes.size()<<" and extraGenes size: "<<extraGenes.size()<<endl;
-			double enhance = 0, inhibit = 0, signal = 0, weight = 0;
-			// cout<<"signal: "<<signal<<endl;
-			// cout<<"For j = "<<j<<" weight_matrix.size() = "<<weight_matrix.size()<<" genesSize: "<<genes.size()<<" extraGenesSize: "<<extraGenes.size()<<endl;
-			for(int i = 0; i < weight_matrix.size(); i++)
-			{
-				
-				weight = weight_matrix[i][j];
-				// cout<<"weight_matrix["<<i<<"]"<<"["<<j<<"] = "<<weight<<endl;
-				// cout<<weight<<endl;
-				// cout<<genes[i]->concentration<<" cccc "<<endl;
-
-				signal += genes[i]->concentration * weight;
-			}
-			signal = signal / (tfGenes.size() + extraGenes.size());
-            updates.push_back(signal);
-            signal = updates[j];
-            cout<<"subject signal: "<<signal<<endl;
-            if(genes[j]->type == P_GENE)
-            {
-            	// cout<< " <- delta signal ->" <<signal;
-            		// cout<<endl;
-            	cout<<"PGene: "<<genes[j]->concentration<<" -> ";
-            	genes[j]->concentration += delta * signal;
-            	cout<<genes[j]->concentration<<endl;
-            		// exit(1);
-            }else if(genes[j]->type == TF_GENE)
-            {
-            	// cout<< " <- delta signal ->" <<signal;
-            		// cout<<endl;
-            	cout<<"TFGene: "<<genes[j]->concentration<<" -> ";
-            	genes[j]->concentration += delta * signal;
-            	cout<<genes[j]->concentration<<endl<<endl;
-            }
-
-            // if(genes[j]->concentration < 1e-10)
-            // {
-            // 	cout<<"Gene conc changed from: "<<genes[j]->concentration;	
-            // 	genes[j]->concentration = 1e-10;
-            // 	// cout<<"ARNBrain: \"My delta value is too high :( \""<<endl;
-            // 	// ToDo::print this if in debug mode
-            // 	cout<<" to: "<<genes[j]->concentration<<endl;	
-            // }
-           
-		}
-		updateConcentrations(false);
-		exit(1);
-
-
-		
-		//We can save a list of concentrations here to log.
-	}
+	regulate();
 
 	// cout<<"something"<<endl;
 	if(ARN_SHOW_OUTPUT)
 		cout<<"#################ARNBrain Output Mode: "<<outputMode<<" Output: ";
 
+	if(pGenes.size() < 1)
+	{
+		cout<<"ARNBrain: I think I broke the pGenes."<<endl;
+		exit(1);
+	}
+	double max_output = pGenes[0]->concentration;
+	for(int m = 0; m < nrOutputValues; m++)
+	{
+		if(pGenes[m]->concentration > max_output)
+			max_output = pGenes[m]->concentration;
+	}
+	bool max_output_flag = false;
 	for(int i = 0; i < nrOutputValues; i++)
 	{
 		// cout<<outputMax<<" and "<<outputMin<<endl;
 
 		double tempConc = pGenes[i]->concentration; 
-		tempConc = (tempConc - 1e-10)/(1.0 - 1e-10); // this is a value between 0 to 1
 		if(outputMode == 0 || outputMode == 2) //continious mode or integer mode
 		{
 			if(outputMax <= outputMin)
@@ -680,9 +609,19 @@ void ARNBrain::update() {
 				else if(tempConc < threshold)
 					outputValues[i] = 0;
 			}
-			// cout<<((tempConc - 1e-10)/(1.0 - 1e-10))<<" -> ";
 			if(ARN_SHOW_OUTPUT)
-					cout<<outputValues[i]<<" | ";
+				cout<<outputValues[i]<<" | ";
+		}else if(outputMode == 4)
+		{
+			if(tempConc == max_output && !max_output_flag)
+			{
+				outputValues[i] = 1;
+				max_output_flag = true;
+			}
+			else
+				outputValues[i] = 0;
+			if(ARN_SHOW_OUTPUT)
+				cout<<outputValues[i]<<" | ";
 		}else 
 		{
 			cout<<"ARNBrain: \"My outputMode is unknown to me! Exiting!\"";	
@@ -690,12 +629,6 @@ void ARNBrain::update() {
 	}
 	if(ARN_SHOW_OUTPUT)
 		cout<<endl<<endl;
-	// cout<<"\noutputs: ";
-	// for(int i = 0; i < nrOutputValues; i++)
-	// {
-	// 	cout<<round(outputValues[i]*1000)/1000.0<<" ";
-	// }
-	// cout<<endl;
 }
 
 string ARNBrain::description() {
@@ -717,23 +650,11 @@ void ARNBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome
 		cout<<"ARNBrain::initializeGenomes() "<<endl;
 	auto genomeName = genomeNamePL->get(PT);
 	_genomes[genomeName]->fillRandom();
-	extraGenes.clear();
-	pGenes.clear();
-	//Add as much input genes as needed to the brain with an initial concentration of 0.0'
-	for(int i = 0; i<nrInputValues; i++)
-	{
-		addInput(0.0, i);
-	}
-
-	for(int i = 0; i<nrOutputValues; i++)
-	{
-		addOutput(0, i);
-	}
 }
 
 shared_ptr<AbstractBrain> ARNBrain::makeCopy(shared_ptr<ParametersTable> _PT)
 {
-	if(ARN_DEBUG_SUPER)
+	if(ARN_DEBUG || ARN_DEBUG_SUPER)
 		cout<<"ARNBrain::makeCopy() "<<endl;
 	if (_PT == nullptr) {
 		_PT = PT;
@@ -793,6 +714,8 @@ shared_ptr<AbstractBrain> ARNBrain::makeCopy(shared_ptr<ParametersTable> _PT)
 		newGene->type = gene->type;
 		newBrain->pGenes.push_back(newGene);
 	}
+
+	newBrain->weight_matrix = weight_matrix;
 
 	return newBrain;
 }

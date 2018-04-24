@@ -101,6 +101,7 @@ shared_ptr<ParameterLink<double>> CoopWorld::switchPenaltyPL = Parameters::regis
 shared_ptr<ParameterLink<double>> CoopWorld::buildScorePL = Parameters::register_parameter("WORLD_COOP-buildScore", 0.0, "Score earned for building");
 shared_ptr<ParameterLink<double>> CoopWorld::shootScorePL = Parameters::register_parameter("WORLD_COOP-shootScore", 0.0, "Score earned for shooting");
 shared_ptr<ParameterLink<double>> CoopWorld::naPenaltyPL = Parameters::register_parameter("WORLD_COOP-naPenalty", 0.01, "No action penalty");
+shared_ptr<ParameterLink<double>> CoopWorld::experienceMaxPL = Parameters::register_parameter("WORLD_COOP-experienceMax", 0.0, "exprience point they get for not switching tasks");
 
 const bool DEBUG_MODE = false;
 
@@ -115,6 +116,7 @@ class Game {
 			int facingX;
 			int facingY; 
 			float task = 0;
+			int expMultiplier = 0;
 			/*
 			how facing direction works:
 			-1-1  +0-1  +1-1
@@ -221,6 +223,7 @@ class Game {
 		double BUILD_SCORE = 0;
 		double SHOOT_SCORE = 0;
 		double NA_PENALTY = 0;
+		double MAX_EXP = 0;
 	
 		const int MAX_CYCLES = 300; //Maximum allowed cycles in the game
 
@@ -233,13 +236,13 @@ class Game {
 		int exp_number;
 
 	public:
-		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize, double HIT_SCORE, double SHOOT_RES, double HIT_PENALTY, double FF_PENALTY, double STRUCT_HIT_SCORE, double BUILD_RES, double STRUCT_HIT_PENALTY, double STRUCT_DEFEND, double RES_SCORE, double FOOD_REWARD, double MOVE_REWARD, double WIN_REWARD, double SWITCH_PENALTY, double BUILD_SCORE, double SHOOT_SCORE, double NA_PENALTY)
+		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize, double HIT_SCORE, double SHOOT_RES, double HIT_PENALTY, double FF_PENALTY, double STRUCT_HIT_SCORE, double BUILD_RES, double STRUCT_HIT_PENALTY, double STRUCT_DEFEND, double RES_SCORE, double FOOD_REWARD, double MOVE_REWARD, double WIN_REWARD, double SWITCH_PENALTY, double BUILD_SCORE, double SHOOT_SCORE, double NA_PENALTY, double MAX_EXP)
 		{
 			if(DEBUG_MODE)
 				cout<<"CoopWorld::Game::Game()"<<endl;
 			//if(Global::update == 1372 || Global::update == 1256 || Global::update == 1 || Global::update == 100 || Global::update == 250 || Global::update == 500 || Global::update == 1000)
-			if(Global::update % 100 == 0)
-				visualize = true;
+			// if(Global::update % 100 == 0)
+			// 	visualize = true;
 			this->HIT_SCORE = HIT_SCORE;
 			this->SHOOT_RES = SHOOT_RES;
 			this->HIT_PENALTY = HIT_PENALTY;
@@ -258,6 +261,7 @@ class Game {
 			this->NA_PENALTY = NA_PENALTY;
 			this->visualize = visualize;
 			this->exp_number = exp_number;
+			this->MAX_EXP = MAX_EXP;
 			//Visualization
 			//ToDo:: Fix the condition
 			if(visualize)
@@ -804,6 +808,7 @@ class Game {
 						team->sLost += SWITCH_PENALTY;
 						agent->task = ATTACKER;
 						team->totalSwitch++;
+						agent->expMultiplier = 0;
 					}
 					shoot(agent, team, cycle);
 					break;
@@ -818,6 +823,7 @@ class Game {
 						team->sLost += SWITCH_PENALTY;
 						agent->task = BUILDER;
 						team->totalSwitch++;
+						agent->expMultiplier = 0;
 					}
 					build(agent, team);
 					break;
@@ -832,6 +838,7 @@ class Game {
 						team->sLost += SWITCH_PENALTY;
 						agent->task = HARVESTER;
 						team->totalSwitch++;
+						agent->expMultiplier = 0;
 					}
 					harvest(agent, team);
 					break;
@@ -872,10 +879,13 @@ class Game {
 			bullet->y = Y;
 			bullet->facingX = agent->facingX;
 			bullet->facingY = agent->facingY;
+			double exp_reward = agent->expMultiplier * 1;
+			if(agent->expMultiplier < MAX_EXP)
+				agent->expMultiplier += 0.1;
 			bullet->id = unique_number++;
 			bullets.push_back(bullet);	
-			team->score += SHOOT_SCORE;
-			team->sGained += SHOOT_SCORE;
+			team->score += SHOOT_SCORE + exp_reward;
+			team->sGained += SHOOT_SCORE + exp_reward;
 			// cout<<"here\n";
 			// cout<<cycle<<" id: "<<bullet->id<<" coord: "<<X<<","<<Y<<" agent: "<<agent->team_id<<"_"<<agent->id<<" "<<agent->x<<","<<agent->y<<endl;
 		}
@@ -907,9 +917,12 @@ class Game {
 				//Update the grid
 				grid[X][Y] = STRUCT; 
 				//substract the cost
+				double exp_reward = agent->expMultiplier * 1;
+				if(agent->expMultiplier < MAX_EXP)
+					agent->expMultiplier += 1;
 				team->resource -= BUILD_RES;
-				team->score += BUILD_SCORE;
-				team->sGained += BUILD_SCORE;
+				team->score += BUILD_SCORE + exp_reward;
+				team->sGained += BUILD_SCORE + exp_reward;
 				// Log
 				team->totalBuilt++;
 			}else
@@ -928,9 +941,12 @@ class Game {
 			frontGridSpace(agent, X, Y);
 			if(isInGrid(X, Y) && grid[X][Y] == FOOD)
 			{
+				double exp_reward = agent->expMultiplier * 1;
+				if(agent->expMultiplier < MAX_EXP)
+					agent->expMultiplier += 1;
 				team->resource += FOOD_REWARD;
-				team->score += RES_SCORE;
-				team->sGained += RES_SCORE;
+				team->score += RES_SCORE + exp_reward;
+				team->sGained += RES_SCORE + exp_reward;
 				grid[X][Y] = EMPTY;
 				// cout<<getRegion(X, Y)<<" team id is: "<<team->id<<" agent id is: "<<agent->team_id<<" x,y"<<X<<","<<Y<<endl;
 				// cout<<"Team: "<<team->id<<" Agent: "<<agent->id<<" Pos: "<<agent->x<<", "<<agent->y<<" Food: "<<X<<", "<<Y<<endl;
@@ -1522,8 +1538,9 @@ void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, in
 		double BUILD_SCORE = buildScorePL->get(PT);
 		double SHOOT_SCORE = shootScorePL->get(PT);
 		double NA_PENALTY = naPenaltyPL->get(PT);
+		double MAX_EXP = experienceMaxPL->get(PT);
 		exp_number++;	
-		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize, HIT_SCORE, SHOOT_RES, HIT_PENALTY, FF_PENALTY, STRUCT_HIT_SCORE, BUILD_RES, STRUCT_HIT_PENALTY, STRUCT_DEFEND, RES_SCORE, FOOD_REWARD, MOVE_REWARD, WIN_REWARD, SWITCH_PENALTY, BUILD_SCORE, SHOOT_SCORE, NA_PENALTY);	
+		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize, HIT_SCORE, SHOOT_RES, HIT_PENALTY, FF_PENALTY, STRUCT_HIT_SCORE, BUILD_RES, STRUCT_HIT_PENALTY, STRUCT_DEFEND, RES_SCORE, FOOD_REWARD, MOVE_REWARD, WIN_REWARD, SWITCH_PENALTY, BUILD_SCORE, SHOOT_SCORE, NA_PENALTY, MAX_EXP);	
 	}
 }
 

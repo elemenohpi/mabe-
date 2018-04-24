@@ -57,7 +57,6 @@ public:
 	double outputMax;
 	int outputMode;
 
-	int brain_id = 0;
 
 	ARNBrain() = delete;
 
@@ -77,6 +76,10 @@ public:
 	void calcWeights();
 
 	int sumXOR(int a[], int b[]);
+
+	vector<double> normalizedInput();
+
+	void regulate();
 
 	virtual ~ARNBrain() = default;
 
@@ -105,5 +108,6 @@ public:
 };
 
 inline shared_ptr<AbstractBrain> ARNBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {
+	// cout<<"ARNBrain::ARNBrain_brainFactory()"<<endl;
 	return make_shared<ARNBrain>(ins, outs, PT);
 }

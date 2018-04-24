@@ -44,6 +44,7 @@ public:
 	static shared_ptr<ParameterLink<double>> buildScorePL;
 	static shared_ptr<ParameterLink<double>> shootScorePL;
 	static shared_ptr<ParameterLink<double>> naPenaltyPL;
+	static shared_ptr<ParameterLink<double>> experienceMaxPL;
 
 	CoopWorld(shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~CoopWorld() = default;
