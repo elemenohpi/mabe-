@@ -112,6 +112,7 @@ class Game {
 			int id;
 			int x;
 			int y;
+			int actions[10] = {0,0,0,0,0,0,0,0,0,0};
 			int team_id;
 			int facingX;
 			int facingY; 
@@ -149,6 +150,8 @@ class Game {
 			int totalStructGotHit = 0;
 			double sGained = 0;
 			double sLost = 0;
+			double teamActivity = 0;
+			double cooperation = 0;
 		};
 
 		//Bullets
@@ -238,11 +241,12 @@ class Game {
 	public:
 		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize, double HIT_SCORE, double SHOOT_RES, double HIT_PENALTY, double FF_PENALTY, double STRUCT_HIT_SCORE, double BUILD_RES, double STRUCT_HIT_PENALTY, double STRUCT_DEFEND, double RES_SCORE, double FOOD_REWARD, double MOVE_REWARD, double WIN_REWARD, double SWITCH_PENALTY, double BUILD_SCORE, double SHOOT_SCORE, double NA_PENALTY, double MAX_EXP)
 		{
+
 			if(DEBUG_MODE)
 				cout<<"CoopWorld::Game::Game()"<<endl;
 			//if(Global::update == 1372 || Global::update == 1256 || Global::update == 1 || Global::update == 100 || Global::update == 250 || Global::update == 500 || Global::update == 1000)
-			// if(Global::update % 100 == 0)
-			// 	visualize = true;
+			if(Global::update % 100 == 0 || (Global::update > 730 && Global::update < 750))
+			 	visualize = true;
 			this->HIT_SCORE = HIT_SCORE;
 			this->SHOOT_RES = SHOOT_RES;
 			this->HIT_PENALTY = HIT_PENALTY;
@@ -294,20 +298,120 @@ class Game {
 			this->brainNamePL = brainNamePL;
 			this->PT = PT;
 
+				
 			//Run the game
-			for(int i = 0; i < MAX_CYCLES && !gameOver; i++)
-			{
-				int cycle = i;
-				// for(auto b: bullets)
-				// {
-				// 	cout<<b->id<<" "<<b->x<<","<<b->y<<" "<<b->shooter<<endl;
-				// }
-				// cout<<bullets.size()<<endl;
+			for(int cycle = 0; cycle < MAX_CYCLES && !gameOver; cycle++)
+			{	
+				int tmpz[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
+
+				for(auto team : teams)
+				{
+					for(int i = 0; i < 3; i++) // for every agent i
+					{
+						for(int a = 0; a < 10; a++) // for all the past actions
+						{
+							if(team->agents[i]->actions[a] == 1)
+							{
+								tmpz[i][0] = 1;
+							}else if(team->agents[i]->actions[a] == 2)
+							{
+								tmpz[i][1] = 1;
+							}if(team->agents[i]->actions[a] == 3)
+							{
+								tmpz[i][2] = 1;
+							}
+						}
+					}
+
+					int teamActivity = 0;
+
+					for(int i = 0; i < 3; i++)
+					{
+						bool foundZ = false;
+						for(int j = 0; j < 3; j++)
+						{
+							if(tmpz[i][j] == 1)
+								foundZ = true;
+						}
+						if(foundZ)
+							teamActivity++;
+					}
+					teamActivity--;
+					if(teamActivity < 0)
+						teamActivity = 0;
+					team->teamActivity += teamActivity;
+
+					bool foundThree = false;
+					int temp_coop_value[3] = {0, 0, 0};
+
+					for(int indexz = 0; indexz < 3; indexz++) // every agent
+					{
+						for(int t1 = 0; t1 < 3; t1++) // every task
+						{
+							if(tmpz[indexz][t1] == 1) //agent 1
+							{
+								for(int java = 0; java < 3; java++) //for every other agent
+								{
+									if(java == indexz) // only if it's a different agent
+										continue;
+									for(int t2 = 0; t2 < 3; t2++) //for every other task
+									{
+										if(t2 == t1) // if it's a different task
+											continue;
+										if(tmpz[java][t2] == 1)
+										{
+											for(int kaveh = 0; kaveh < 3; kaveh++) // for every other agent 3rd
+											{
+												if(kaveh == java || kaveh == indexz) //it's a different agent
+													continue;
+												for(int t3 = 0; t3 < 3; t3++)
+												{
+													if(t3 == t2 || t3 == t1)// it's a new task
+														continue;
+													if(tmpz[kaveh][t3] == 1)
+													{
+														// 3 different tasks has been done!!!!!!!!!!!!!!!!!!
+														foundThree = true;
+														temp_coop_value[indexz] = 2;
+													}
+												}
+											}
+											if(!foundThree)
+											{
+												temp_coop_value[indexz] = 1;
+											}
+										}
+									}
+								}
+							}
+							
+						}
+					}
+
+					int max_temp_coop_value = temp_coop_value[0];
+					for(int i = 0; i < 3; i++)
+					{
+						if(max_temp_coop_value < temp_coop_value[i])
+							max_temp_coop_value = temp_coop_value[i];
+					}
+
+					// for(int i = 0; i < 3; i++)
+					// {
+					// 	for(int j = 0; j < 3; j++)
+					// 	{
+					// 		cout<<tmpz[i][j]<<" ";
+					// 	}
+					// 	cout<<endl;
+					// }
+
+					// cout<<"max found"<<max_temp_coop_value<<endl<<endl;
+
+					team->cooperation += max_temp_coop_value;
+
+				}
 
 				//Let Agents do their things. Here the brains should be used
 				//For each team we have
-								
-
 				for(shared_ptr<struct Team> team : teams)
 				{
 					if(team->lost)
@@ -327,8 +431,6 @@ class Game {
 						// auto brain = p1[i]->brains[brainNamePL->get(PT)]; //initial input. This will be changed soonish. This might raise errors.
 						//ToDo:: remove if this works
 						shared_ptr<AbstractBrain> brain;
-// if(exp_number == 3 )
-// 															cout<<cycle<<endl;
 							
 						// cout<<"brain size = "<<p1.size()<<endl;
 						//Set the brain inputs
@@ -393,8 +495,6 @@ class Game {
 						//The largest output is the action
 									
 						doAction(agent, team, maxIndex(action, 7), cycle);
-												
-						
 					}
 				}
 
@@ -482,12 +582,11 @@ class Game {
 					gameOver = true;
 					//it was a tie loss
 				}
-
-
 			}
-// cout<<"midf"<<endl;
+
 			//End of the game
 			double accuracies[4];
+
 			for(auto team : teams)
 			{
 				team->score -= START_SCORE;
@@ -501,16 +600,7 @@ class Game {
 				else
 					accuracies[team->id-1] = (team->totalSuccessfulShots + team->totalStructHit * 1.0) / (team->totalShots * 1.0) * 100;
 			}
-
-			// for(int i = 0; i < 4; i++)
-			// {
-			// 	// double score_diff = 0;
-			// 	// for(int j = 0; j < 4; j++)
-			// 	// {
-			// 	// 	score_diff += findTeam(i)->score - findTeam(j)->score;
-			// 	// }
-			// 	final_scores[i] = 3 * findTeam(i+1)->sGained - 1 * findTeam(i+1)->sLost;
-			// }	
+	
 
 			auto winner = findTeam(maxIndex(final_scores, 4)+1);
 			final_scores[maxIndex(final_scores, 4)] += WIN_REWARD;
@@ -521,6 +611,7 @@ class Game {
 			// cout<<"\t Accuracy: "<<accuracy<<"%";
 			// cout<<"\t TSwitch: "<<winner->totalSwitch<<endl;
 			
+
 			//Score the players
 			for(int i = 0; i < 3; i++)
 			{
@@ -538,6 +629,8 @@ class Game {
 				p1[i]->dataMap.append("totalStructGotHit", findTeam(1)->totalStructGotHit);
 				p1[i]->dataMap.append("sGained", findTeam(1)->sGained);
 				p1[i]->dataMap.append("sLost", findTeam(1)->sLost);
+				p1[i]->dataMap.append("teamActivity", findTeam(1)->teamActivity);
+				p1[i]->dataMap.append("cooperation", findTeam(1)->cooperation);
 
 				p2[i]->dataMap.append("score", final_scores[1]);
 				p2[i]->dataMap.append("accuracy", accuracies[1]);	
@@ -553,6 +646,8 @@ class Game {
 				p2[i]->dataMap.append("totalStructGotHit", findTeam(2)->totalStructGotHit);
 				p2[i]->dataMap.append("sGained", findTeam(2)->sGained);
 				p2[i]->dataMap.append("sLost", findTeam(2)->sLost);
+				p2[i]->dataMap.append("teamActivity", findTeam(2)->teamActivity);
+				p2[i]->dataMap.append("cooperation", findTeam(2)->cooperation);
 
 				p3[i]->dataMap.append("score", final_scores[2]);
 				p3[i]->dataMap.append("accuracy", accuracies[2]);
@@ -568,6 +663,8 @@ class Game {
 				p3[i]->dataMap.append("totalStructGotHit", findTeam(3)->totalStructGotHit);
 				p3[i]->dataMap.append("sGained", findTeam(3)->sGained);
 				p3[i]->dataMap.append("sLost", findTeam(3)->sLost);
+				p3[i]->dataMap.append("teamActivity", findTeam(3)->teamActivity);
+				p3[i]->dataMap.append("cooperation", findTeam(3)->cooperation);
 
 				p4[i]->dataMap.append("score", final_scores[3]);
 				p4[i]->dataMap.append("accuracy", accuracies[3]);
@@ -583,7 +680,11 @@ class Game {
 				p4[i]->dataMap.append("totalStructGotHit", findTeam(4)->totalStructGotHit);
 				p4[i]->dataMap.append("sGained", findTeam(4)->sGained);
 				p4[i]->dataMap.append("sLost", findTeam(4)->sLost);
+				p4[i]->dataMap.append("teamActivity", findTeam(4)->teamActivity);
+				p4[i]->dataMap.append("cooperation", findTeam(4)->cooperation);
 			}
+
+
 		}
 
 
@@ -778,6 +879,15 @@ class Game {
 			cout<<endl;
 		}
 
+		void recAction(shared_ptr<struct Agent> agent, int value)
+		{
+			for(int i = 0; i < 9; i++)
+			{
+				agent->actions[i+1] = agent->actions[i];
+			}
+			agent->actions[0] = value;
+		}
+
 		//Does one of the possible actiosn
 		void doAction(shared_ptr<struct Agent> agent, shared_ptr<struct Team> team, int index, int cycle)
 		{		
@@ -788,14 +898,17 @@ class Game {
 				case 0:
 					//Move 
 					move(agent);
+					recAction(agent, 0);
 					break;
 				case 1:
 					//Turn L
 					turnL(agent);
+					recAction(agent, 0);
 					break;
 				case 2:
 					//Turn R
 					turnR(agent);
+					recAction(agent, 0);
 					break;
 				case 3:
 					//Shoot towards front
@@ -846,6 +959,7 @@ class Game {
 					//Do Nothing
 					team->score -= NA_PENALTY/2;
 					team->sLost += NA_PENALTY/2;
+					recAction(agent, 0);
 					break;
 			}
 		}
@@ -860,6 +974,7 @@ class Game {
 			{
 				team->score -= NA_PENALTY;
 				team->sLost += NA_PENALTY;
+				recAction(agent, 0);
 				return;
 			}
 			// Find the front space
@@ -867,7 +982,10 @@ class Game {
 			frontGridSpace(agent, X, Y);
 			//Check if the front space is in grid or not
 			if(!isInGrid(X, Y))
+			{
+				recAction(agent, 0);
 				return;
+			}
 			//Substract the cost
 			team->resource -= SHOOT_RES;
 			// Log
@@ -886,6 +1004,7 @@ class Game {
 			bullets.push_back(bullet);	
 			team->score += SHOOT_SCORE + exp_reward;
 			team->sGained += SHOOT_SCORE + exp_reward;
+			recAction(agent, 2);
 			// cout<<"here\n";
 			// cout<<cycle<<" id: "<<bullet->id<<" coord: "<<X<<","<<Y<<" agent: "<<agent->team_id<<"_"<<agent->id<<" "<<agent->x<<","<<agent->y<<endl;
 		}
@@ -900,6 +1019,7 @@ class Game {
 			{
 				team->score -= NA_PENALTY;
 				team->sLost += NA_PENALTY;
+				recAction(agent, 0);
 				return;
 			}
 			//Find the space in front
@@ -910,6 +1030,7 @@ class Game {
 			{
 				team->score -= NA_PENALTY;
 				team->sLost += NA_PENALTY;	
+				recAction(agent, 0);
 				return;
 			}
 			if(grid[X][Y] == EMPTY && !isAgentThere(X, Y))
@@ -923,12 +1044,14 @@ class Game {
 				team->resource -= BUILD_RES;
 				team->score += BUILD_SCORE + exp_reward;
 				team->sGained += BUILD_SCORE + exp_reward;
+				recAction(agent, 3);
 				// Log
 				team->totalBuilt++;
 			}else
 			{
 				team->score -= NA_PENALTY;
 				team->sLost += NA_PENALTY;
+				recAction(agent, 0);
 			}
 		}
 
@@ -954,10 +1077,12 @@ class Game {
 				team->hasFood = false;
 				placeFood(team->id);
 				team->hasFood = true;
+				recAction(agent, 1);
 			}else
 			{
 				team->score -= NA_PENALTY;
 				team->sLost += NA_PENALTY;
+				recAction(agent, 0);
 			}
 		}
 
@@ -1454,6 +1579,8 @@ CoopWorld::CoopWorld(shared_ptr<ParametersTable> _PT) :
 	popFileColumns.push_back("totalGotHit");
 	popFileColumns.push_back("sGained");
 	popFileColumns.push_back("sLost");
+	popFileColumns.push_back("cooperation");
+	popFileColumns.push_back("teamActivity");
 }
 
 void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
@@ -1541,6 +1668,7 @@ void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, in
 		double MAX_EXP = experienceMaxPL->get(PT);
 		exp_number++;	
 		Game g = Game(p1, p2, p3, p4, brainNamePL, PT, exp_number, visualize, HIT_SCORE, SHOOT_RES, HIT_PENALTY, FF_PENALTY, STRUCT_HIT_SCORE, BUILD_RES, STRUCT_HIT_PENALTY, STRUCT_DEFEND, RES_SCORE, FOOD_REWARD, MOVE_REWARD, WIN_REWARD, SWITCH_PENALTY, BUILD_SCORE, SHOOT_SCORE, NA_PENALTY, MAX_EXP);	
+
 	}
 }
 
