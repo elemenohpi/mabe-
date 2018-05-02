@@ -245,7 +245,7 @@ class Game {
 			if(DEBUG_MODE)
 				cout<<"CoopWorld::Game::Game()"<<endl;
 			//if(Global::update == 1372 || Global::update == 1256 || Global::update == 1 || Global::update == 100 || Global::update == 250 || Global::update == 500 || Global::update == 1000)
-			if(Global::update % 100 == 0 || (Global::update > 730 && Global::update < 750))
+			if(Global::update % 100 == 0)
 			 	visualize = true;
 			this->HIT_SCORE = HIT_SCORE;
 			this->SHOOT_RES = SHOOT_RES;
@@ -593,7 +593,8 @@ class Game {
 				//Old fitness function
 				// final_scores[team->id-1] = team->score; 
 				//New fitness function (weighted score fitness)
-				final_scores[team->id-1] = team->sGained - team->sLost/10;
+				// final_scores[team->id-1] = team->sGained - team->sLost/10;
+				final_scores[team->id-1] = team->sGained - team->sLost/5 + team->cooperation/2;
 				// final_scores[team->id-1] =  team->sGained;
 				if(team->totalShots == 0)
 					accuracies[team->id-1] = 0;
