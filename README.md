@@ -29,3 +29,9 @@ To run the mabe (after compiling), run the following command in the root directo
 unless you are on a PC and compiled with visual studio, then it's: </br>
 
 x64/Release/mabe.exe
+
+</br>
+
+CoopWorld is designed and developed by: </br>
+
+Iliya "eLeMeNOhPi" Alavy and Darren Charles Incorvaia 
