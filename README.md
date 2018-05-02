@@ -1,26 +1,31 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-# MABE [![Build Status][badge-MABE-travisci]][MABE-travisci]
 
-### For Documentation and help getting started [click here for the wiki](https://github.com/Hintzelab/MABE/wiki/)
+# MABE 
 
-please do not commit your 'work' and 'build' directory, and also do not commit your xcode project file, only the folders that contain .cpp and .h files.<br>
-<br>
+### This is not an official version of [MABE](https://github.com/Hintzelab/MABE/wiki/)
 
-Extra code can be found at the MABE_extras repository.
+</br>
 
-Contributors to this project include<br>
-Initial Design and Managment: Arend Hintze<br>
-Development and Maintenance: Cliff Bohm<br>
-Other: Brian Goldman (parameter configuration, advice)<br>
+This version of mabe includes "CoopWorld" which is mean to be used to evolve cooperation/cooperative behavior. 
 
-[mabe-travisci]: https://travis-ci.org/Hintzelab/MABE
-[badge-mabe-travisci]: https://img.shields.io/travis/Hintzelab/MABE.svg?branch=development&style=flat-square
+</br>
 
-=======
-# mabe-
->>>>>>> 35c4dafd71f70c7cb0ed46a542d3e2ccca32a830
-||||||| merged common ancestors
-=======
+### Setup guide:
 
->>>>>>> 6f35274219119e7458346c586b5c4bbdb8f49f78
+In order to run this code, you need to install python3 (Follow the instructions in the mabe wiki from the above link)
+
+</br>
+
+In order to compile this code, run the following command in the root directory of mabe: </br>
+
+python pythonTools/mbuild.py
+
+</br>
+
+To run the mabe (after compiling), run the following command in the root directory of mabe: </br>
+
+./mabe 
+
+</br>
+unless you are on a PC and compiled with visual studio, then it's: </br>
+
+x64/Release/mabe.exe

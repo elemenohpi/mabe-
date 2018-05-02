@@ -3,23 +3,16 @@ import os
 import posixpath
 import sys
 import platform ## system identification
+import re ## regular expressions
+import copy ## deepcopy
 import uuid ## unique guid generator for vs project files
 import collections ## defaultdict
-import imp # module dependency checking
+from utils import pyreq
 from subprocess import call
-
+import subprocess
 
 if platform.system() == 'Windows':
-    requiredNonstandardModules = "winreg".split(',')
-    modulesAreMissing = False
-    for moduleName in requiredNonstandardModules:
-        try:
-            imp.find_module(moduleName)
-        except (ModuleNotFoundError,ImportError) as error:
-            modulesAreMissing = True
-    if modulesAreMissing:
-        print("Error: required 'winreg' module is missing. Try installing it, or install miniconda python3 for windows.")
-        sys.exit()
+    pyreq.require("winreg") ## quits if had to attempt install. So user must run script again.
     import winreg ## can now safely import
 
 parser = argparse.ArgumentParser()
@@ -33,6 +26,7 @@ parser.add_argument('-nc','--noCompile', action='store_true', default = False, h
 parser.add_argument('-g','--generate', type=str, default = 'none', help='does not compile but generates a project files of type: '+SUPPORTED_PROJECT_FILES+' ('+SUPPORTED_PROJECT_NAMES+')', required=False)
 parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
 parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6', required=False)
+parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt', required=False)
 
 args = parser.parse_args()
 
@@ -41,10 +35,76 @@ if platform.system() == 'Windows':
 else:
     product = 'mabe'
 
+def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverflow.com/a/1160227
+    flags = os.O_CREAT | os.O_APPEND
+    with os.fdopen(os.open(fname, flags=flags, mode=mode, dir_fd=dir_fd)) as f:
+        os.utime(f.fileno() if os.utime in os.supports_fd else fname,
+            dir_fd=None if os.supports_fd else dir_fd, **kwargs)
+
 compiler='c++'
 compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread -pthread'
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
+
+options = {'World':[],'Genome':[],'Brain':[],'Optimizer':[],'Archivist':[],}
+currentOption = ""
+
+ptrnBuildOptions = re.compile(r'([+\-*%])\s*(\w+)') # ex: gets ["%","WORLD"] from " %  WORLD", gets ["*","BerryWorld"] from " * BerryWorld"
+if args.init:
+    ## fill options dict with the subdirs names {'World':['Berry','Xor']}
+    for eachTopDir in options.keys():
+        if os.path.isdir(eachTopDir):
+            for eachSubDir in os.listdir(eachTopDir):
+                if os.path.isdir(os.path.join(eachTopDir,eachSubDir)):
+                    options[eachTopDir].append(eachSubDir[0:-len(eachTopDir)])
+                elif eachSubDir.startswith("Default"):
+                    if "Default" not in options[eachTopDir]:
+                        options[eachTopDir].append("Default")
+    open("buildOptions.txt",'a').close() ## create buildOptions.txt if it doesn't exist
+    ## read current buildOptions.txt into a single string
+    f = open("buildOptions.txt",'r')
+    bopts = f.read().splitlines()
+    f.close()
+    ## create a data structure to store buildOptions sections, and include directives [+-*] and names ['Berry','Xor']
+    oldopts = dict()
+    for eachKey in options.keys():
+        oldopts[eachKey] = ([],[]) ## Structure: {'World':(['+','-'],['Berry','Xor']),...}
+    ## go through the old buildOptions, store into the new structure, and remove names from the discovered (options var) if already here
+    ## and also don't add to new structure if not in discovered (options var)
+    OPS,NAMES=0,1
+    currentSection=''
+    for line in bopts:
+        line = line.strip()
+        if len(line) == 0: continue
+        for a,b in ptrnBuildOptions.findall(line):
+            if a == '%': currentSection = b
+            else:
+                if b in options[currentSection]: ## if also in filesystem discovered (options var)
+                    oldopts[currentSection][OPS].append(a) ## add to new structure
+                    oldopts[currentSection][NAMES].append(b)
+                    options[currentSection].remove(b) ## remove from filesystem discovered
+    ## for all remaining items (meaning were discovered but not yet in the new structure) add them to new structure
+    for currentSection,names in options.items():
+        for name in names:
+            oldopts[currentSection][OPS].append('+')
+            oldopts[currentSection][NAMES].append(name)
+        if '*' not in oldopts[currentSection][OPS]:
+            oldopts[currentSection][OPS][-1] = '*'
+    ## write new buildOptions.txt using the new structure
+    with open("buildOptions.txt",'w') as newbopts:
+        for currentSection in oldopts.keys():
+            line = "% {section}\n".format(section=currentSection)
+            newbopts.write(line)
+            print(line,end='')
+            for op,name in zip(oldopts[currentSection][OPS],oldopts[currentSection][NAMES]):
+                line = "  {op} {name}\n".format(op=op,name=name)
+                newbopts.write(line)
+                print(line,end='')
+            newbopts.write("\n")
+            print()
+    print("buildOptions.txt created")
+    print()
+    sys.exit()
 
 args.generate=args.generate.lower()
 if args.generate=='none': # make is default generate option
@@ -59,9 +119,9 @@ else: # don't compile if generate option present
 
 if posixpath.exists(args.buildOptions) is False:
     print()
-    print('buildOptions file with name "'+args.buildOptions+'" does not exist. Please provide a diffrent filename.')
+    print('buildOptions file with name "'+args.buildOptions+'" does not exist. Please provide a diffrent filename, or use -i to initialize one.')
     print()
-    sys.exit();
+    sys.exit()
     
 # load all lines from buildOptions into lines, ignore blank lines
 file = open(args.buildOptions, 'r')
@@ -71,8 +131,6 @@ if pathToMABE == "":
 lines = [line.rstrip('\n').split() for line in file if line.rstrip('\n').split() not in [['EOF']] ]
 file.close()
 
-options = {'World':[],'Genome':[],'Brain':[],'Optimizer':[],'Archivist':[],}
-currentOption = ""
 
 unrecognizedLinesFound=False
 for linenum,line in enumerate(lines):
@@ -144,17 +202,17 @@ for option in options["Archivist"]:
 # modules.h:makeWorld
 
 outFile.write('\n\n//create a world\n')
-outFile.write('shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractWorld> newWorld;\n')
+outFile.write('std::shared_ptr<AbstractWorld> makeWorld(std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractWorld> newWorld;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string worldType = AbstractWorld::worldTypePL->get(PT);\n')
+outFile.write('  std::string worldType = AbstractWorld::worldTypePL->get(PT);\n')
 for option in options["World"]:
     outFile.write('  if (worldType == "'+option+'") {\n')
-    outFile.write('    newWorld = make_shared<'+option+'World>(PT);\n')
+    outFile.write('    newWorld = std::make_shared<'+option+'World>(PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (!found){\n')
-outFile.write('    cout << "  ERROR! could not find WORLD-worldType \\"" << worldType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find WORLD-worldType \\"" << worldType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newWorld;\n')
@@ -163,17 +221,17 @@ outFile.write('}\n')
 # modules.h:makeOptimizer
 
 outFile.write('\n\n//create an optimizer\n')
-outFile.write('shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractOptimizer> newOptimizer;\n')
+outFile.write('std::shared_ptr<AbstractOptimizer> makeOptimizer(std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractOptimizer> newOptimizer;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string optimizerType = AbstractOptimizer::Optimizer_MethodStrPL->get(PT);\n')
+outFile.write('  std::string optimizerType = AbstractOptimizer::Optimizer_MethodStrPL->get(PT);\n')
 for option in options["Optimizer"]:
     outFile.write('  if (optimizerType == "'+option+'") {\n')
-    outFile.write('    newOptimizer = make_shared<'+option+'Optimizer>(PT);\n')
+    outFile.write('    newOptimizer = std::make_shared<'+option+'Optimizer>(PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (!found){\n')
-outFile.write('    cout << "  ERROR! could not find OPTIMIZER-optimizer \\"" << optimizerType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find OPTIMIZER-optimizer \\"" << optimizerType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newOptimizer;\n')
@@ -182,17 +240,17 @@ outFile.write('}\n')
 # modules.h:makeArchivist
 
 outFile.write('\n\n//create an archivist\n')
-outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, string _maxDMValue, shared_ptr<ParametersTable> PT, string groupPrefix = ""){\n')
-outFile.write('  shared_ptr<DefaultArchivist> newArchivist;\n')
+outFile.write('std::shared_ptr<DefaultArchivist> makeArchivist(std::vector<std::string> popFileColumns, std::shared_ptr<Abstract_MTree> _maxFormula, std::shared_ptr<ParametersTable> PT, std::string groupPrefix = ""){\n')
+outFile.write('  std::shared_ptr<DefaultArchivist> newArchivist;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string archivistType = DefaultArchivist::Arch_outputMethodStrPL->get(PT);\n')
+outFile.write('  std::string archivistType = DefaultArchivist::Arch_outputMethodStrPL->get(PT);\n')
 for option in options["Archivist"]:
     outFile.write('  if (archivistType == "'+option+'") {\n')
-    outFile.write('    newArchivist = make_shared<'+option+'Archivist>(popFileColumns, _maxDMValue, PT, groupPrefix);\n')
+    outFile.write('    newArchivist = std::make_shared<'+option+'Archivist>(popFileColumns, _maxFormula, PT, groupPrefix);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (!found){\n')
-outFile.write('    cout << "  ERROR! could not find ARCHIVIST-outputMethod \\"" << archivistType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find ARCHIVIST-outputMethod \\"" << archivistType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newArchivist;\n')
@@ -201,17 +259,17 @@ outFile.write('}\n')
 # modules.h:makeTemplateGenome
 
 outFile.write('\n\n//create a template genome\n')
-outFile.write('shared_ptr<AbstractGenome> makeTemplateGenome(shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractGenome> newGenome;\n')
+outFile.write('std::shared_ptr<AbstractGenome> makeTemplateGenome(std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractGenome> newGenome;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string genomeType = AbstractGenome::genomeTypeStrPL->get(PT);\n')
+outFile.write('  std::string genomeType = AbstractGenome::genomeTypeStrPL->get(PT);\n')
 for option in options["Genome"]:
     outFile.write('  if (genomeType == "'+option+'") {\n')
     outFile.write('    newGenome = '+option+'Genome_genomeFactory(PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (found == false){\n')
-outFile.write('    cout << "  ERROR! could not find GENOME-genomeType \\"" << genomeType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find GENOME-genomeType \\"" << genomeType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newGenome;\n')
@@ -220,17 +278,17 @@ outFile.write('}\n')
 # modules.h:makeTemplateBrain
 
 outFile.write('\n\n//create a template brain\n')
-outFile.write('shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractBrain> newBrain;\n')
+outFile.write('std::shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractBrain> newBrain;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string brainType = AbstractBrain::brainTypeStrPL->get(PT);\n')
+outFile.write('  std::string brainType = AbstractBrain::brainTypeStrPL->get(PT);\n')
 for option in options["Brain"]:
     outFile.write('  if (brainType == "'+option+'") {\n')
     outFile.write('    newBrain = '+option+'Brain_brainFactory(inputs, outputs, PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (found == false){\n')
-outFile.write('    cout << "  ERROR! could not find BRAIN-brainType \\"" << brainType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find BRAIN-brainType \\"" << brainType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newBrain;\n')
@@ -242,35 +300,35 @@ outFile.write('\n\n//configure Defaults and Documentation\n')
 outFile.write('void configureDefaultsAndDocumentation(){\n')
 
 
-outFile.write('  Parameters::root->setParameter("BRAIN-brainType", (string)"' + options["Brain"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("BRAIN-brainType", (std::string)"' + options["Brain"][0] + '");\n')
 optionsList = ''
 for t in options["Brain"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("GENOME-genomeType", (string)"' + options["Genome"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("GENOME-genomeType", (std::string)"' + options["Genome"][0] + '");\n')
 optionsList = ''
 for t in options["Genome"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"' + options["Archivist"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("ARCHIVIST-outputMethod", (std::string)"' + options["Archivist"][0] + '");\n')
 optionsList = ''
 for t in options["Archivist"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"' + options["Optimizer"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("OPTIMIZER-optimizer", (std::string)"' + options["Optimizer"][0] + '");\n')
 optionsList = ''
 for t in options["Optimizer"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("WORLD-worldType", (string)"' + options["World"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("WORLD-worldType", (std::string)"' + options["World"][0] + '");\n')
 optionsList = ''
 for t in options["World"]:
     optionsList += t + ', '
@@ -349,6 +407,17 @@ def getSourceFilesByBuildOptions(sep='/'):
     sortedunits=sorted(units, key=lambda x: x[f_folder])
     return sortedunits
 
+## create git version integration
+## Create an empty file if git is not available
+## Otherwise capture commit hash
+gitExists = subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version")
+with open(os.path.join("Utilities","gitversion.h"),'w') as file:
+    if gitExists:
+        commitHash = str(subprocess.run("git rev-parse HEAD",shell=True,stdout=subprocess.PIPE).stdout.decode("utf-8").strip())
+        file.write('const char *gitversion = "{gitversion}";\n'.format(gitversion=commitHash))
+    else:
+        file.write('const char *gitversion = "";\n')
+touch("main.cpp") ## IDE-independent signal to recompile main.o
 
 # Create a make file if requested (default)
 if args.generate == 'make': ## GENERATE make
