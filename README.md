@@ -5,13 +5,20 @@
 
 </br>
 
-This version of mabe includes "CoopWorld" which is mean to be used to evolve cooperation/cooperative behavior. 
+This version of mabe includes "CoopWorld" which is a world with the goal of evolving cooperation/cooperative behavior. 
 
 </br>
 
 ### Setup guide:
 
-In order to run this code, you need to install python3 (Follow the instructions in the mabe wiki from the above link)
+In order to run this code, you need to install python3 and all the dependencies required to run the official MABE (Follow the instructions in the mabe wiki from the above link). A shortlist of the required dependencies and how to install them in a linux machine is as follows:
+
+</br>
+
+python 3.5+ : 
+
+''' $ sudo apt-get install python3.6 '''
+
 
 </br>
 
