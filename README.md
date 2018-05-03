@@ -17,7 +17,7 @@ In order to run this code, you need to install python3 and all the dependencies 
 
 python 3.5+ : 
 
-''' $ sudo apt-get install python3.6 '''
+``` $ sudo apt-get install python3.6 ```
 
 
 </br>
