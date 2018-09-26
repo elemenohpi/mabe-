@@ -16,6 +16,7 @@
 #include "World/BerryWorld/BerryWorld.h"
 #include "World/TestWorld/TestWorld.h"
 #include "World/CoopWorld/CoopWorld.h"
+#include "World/MkWorld/MkWorld.h"
 #include "Genome/CircularGenome/CircularGenome.h"
 #include "Genome/MultiGenome/MultiGenome.h"
 #include "Brain/CGPBrain/CGPBrain.h"
@@ -49,6 +50,10 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT){
     }
   if (worldType == "Coop") {
     newWorld = make_shared<CoopWorld>(PT);
+    found = true;
+    }
+  if (worldType == "Mk") {
+    newWorld = make_shared<MkWorld>(PT);
     found = true;
     }
   if (!found){
@@ -170,7 +175,7 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [Simple]");
 
   Parameters::root->setParameter("WORLD-worldType", (string)"Xor");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Xor, Berry, Test, Coop]");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Xor, Berry, Test, Coop, Mk]");
 }
 
 

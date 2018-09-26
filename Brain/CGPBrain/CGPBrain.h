@@ -96,6 +96,8 @@ public:
 	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 
+	string generateFormula();
+
 };
 
 inline shared_ptr<AbstractBrain> CGPBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {

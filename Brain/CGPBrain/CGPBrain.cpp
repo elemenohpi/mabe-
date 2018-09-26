@@ -388,6 +388,10 @@ string CGPBrain::description() {
 	return S;
 }
 
+string CGPBrain::generateFormula() {
+	
+}
+
 DataMap CGPBrain::getStats(string& prefix) {
 	DataMap dataMap;
 

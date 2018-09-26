@@ -238,6 +238,17 @@ class Game {
 
 		int exp_number;
 
+		double hhb = 0.0;
+		double hhs = 0.0;
+		double hhh = 0.0;
+		double bbb = 0.0;
+		double bbs = 0.0;
+		double bbh = 0.0;
+		double ssb = 0.0;
+		double sss = 0.0;
+		double ssh = 0.0;
+		double hbs = 0.0;
+
 	public:
 		Game(vector<shared_ptr<Organism>> p1, vector<shared_ptr<Organism>> p2, vector<shared_ptr<Organism>> p3, vector<shared_ptr<Organism>> p4, shared_ptr<ParameterLink<string>> brainNamePL, shared_ptr<ParametersTable> PT, int exp_number, int visualize, double HIT_SCORE, double SHOOT_RES, double HIT_PENALTY, double FF_PENALTY, double STRUCT_HIT_SCORE, double BUILD_RES, double STRUCT_HIT_PENALTY, double STRUCT_DEFEND, double RES_SCORE, double FOOD_REWARD, double MOVE_REWARD, double WIN_REWARD, double SWITCH_PENALTY, double BUILD_SCORE, double SHOOT_SCORE, double NA_PENALTY, double MAX_EXP)
 		{
@@ -582,7 +593,155 @@ class Game {
 					gameOver = true;
 					//it was a tie loss
 				}
+
+				//calculate the communication investigation counters
+				for (auto team : teams)
+				{
+					double ta[3];
+					int temp_counter = 0;
+					for (auto agent : team->agents)
+					{	
+						ta[temp_counter++] = agent->task;
+					}
+					if (ta[0] == HARVESTER)
+					{
+						if (ta[1] == HARVESTER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								hhh++;
+							}else if (ta[2] == BUILDER)
+							{
+								hhb++;
+							}else if (ta[2] == ATTACKER)
+							{
+								hhs++;
+							}
+						}
+						else if (ta[1] == BUILDER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								hhb++;
+							}else if (ta[2] == BUILDER)
+							{
+								bbh++;
+							}else if (ta[2] == ATTACKER)
+							{
+								hbs++;
+							}
+						}else if (ta[1] == ATTACKER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								hhs++;
+							}else if (ta[2] == BUILDER)
+							{
+								hbs++;
+							}else if (ta[2] == ATTACKER)
+							{
+								ssh++;
+							}
+						}
+					}else if (ta[0] == BUILDER)
+					{
+						if (ta[1] == HARVESTER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								hhb++;
+							}else if (ta[2] == BUILDER)
+							{
+								bbh++;
+							}else if (ta[2] == ATTACKER)
+							{
+								hbs++;
+							}
+						}else if (ta[1] == BUILDER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								bbh++;
+							}else if (ta[2] == BUILDER)
+							{
+								bbb++;
+							}else if (ta[2] == ATTACKER)
+							{
+								bbs++;
+							}
+						}else if (ta[1] == ATTACKER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								hbs++;
+							}else if (ta[2] == BUILDER)
+							{
+								bbs++;
+							}else if (ta[2] == ATTACKER)
+							{
+								ssb++;
+							}
+						}
+					}else if (ta[0] == ATTACKER)
+					{
+						if (ta[1] == HARVESTER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								hhs++;
+							}else if (ta[2] == BUILDER)
+							{
+								hbs++;
+							}else if (ta[2] == ATTACKER)
+							{
+								ssh++;
+							}
+						}else if (ta[1] == BUILDER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								hbs++;
+							}else if (ta[2] == BUILDER)
+							{
+								bbs++;
+							}else if (ta[2] == ATTACKER)
+							{
+								ssb++;
+							}
+						}else if (ta[1] == ATTACKER)
+						{
+							if (ta[2] == HARVESTER)
+							{
+								ssh++;
+							}else if (ta[2] == BUILDER)
+							{
+								ssb++;
+							}else if (ta[2] == ATTACKER)
+							{
+								sss++;
+							}
+						}
+					}
+				}
+				
 			}
+
+			ofstream myfile;
+			myfile.open (FileManager::outputDirectory+(string)"/"+"communications.csv", std::ios_base::app);
+			// order:
+			// double hhb = 0.0;
+			// double hhs = 0.0;
+			// double hhh = 0.0;
+			// double bbb = 0.0;
+			// double bbs = 0.0;
+			// double bbh = 0.0;
+			// double ssb = 0.0;
+			// double sss = 0.0;
+			// double ssh = 0.0;
+			// double hbs = 0.0;
+			myfile << Global::update << ',' << exp_number << ',' << hhb << ',' << hhs << ", " << hhh << ", " << bbb << ", " << bbs << ", " << bbh << ", " << ssb << ", " << sss << ", " << ssh << ", " << hbs << ", " << "\n";
+			myfile.close();
+			
 
 			//End of the game
 			double accuracies[4];
@@ -632,6 +791,16 @@ class Game {
 				p1[i]->dataMap.append("sLost", findTeam(1)->sLost);
 				p1[i]->dataMap.append("teamActivity", findTeam(1)->teamActivity);
 				p1[i]->dataMap.append("cooperation", findTeam(1)->cooperation);
+				// p1[i]->dataMap.append("hhs", hhs/3);
+				// p1[i]->dataMap.append("hhh", hhh/3);
+				// p1[i]->dataMap.append("hhb", hhb/3);
+				// p1[i]->dataMap.append("bbb", bbb/3);
+				// p1[i]->dataMap.append("bbs", bbs/3);
+				// p1[i]->dataMap.append("bbh", bbh/3);
+				// p1[i]->dataMap.append("sss", sss/3);
+				// p1[i]->dataMap.append("ssh", ssh/3);
+				// p1[i]->dataMap.append("ssb", ssb/3);
+				// p1[i]->dataMap.append("hbs", hbs/3);
 
 				p2[i]->dataMap.append("score", final_scores[1]);
 				p2[i]->dataMap.append("accuracy", accuracies[1]);	
@@ -649,6 +818,16 @@ class Game {
 				p2[i]->dataMap.append("sLost", findTeam(2)->sLost);
 				p2[i]->dataMap.append("teamActivity", findTeam(2)->teamActivity);
 				p2[i]->dataMap.append("cooperation", findTeam(2)->cooperation);
+				// p2[i]->dataMap.append("hhs", hhs/3);
+				// p2[i]->dataMap.append("hhh", hhh/3);
+				// p2[i]->dataMap.append("hhb", hhb/3);
+				// p2[i]->dataMap.append("bbb", bbb/3);
+				// p2[i]->dataMap.append("bbs", bbs/3);
+				// p2[i]->dataMap.append("bbh", bbh/3);
+				// p2[i]->dataMap.append("sss", sss/3);
+				// p2[i]->dataMap.append("ssh", ssh/3);
+				// p2[i]->dataMap.append("ssb", ssb/3);
+				// p2[i]->dataMap.append("hbs", hbs/3);
 
 				p3[i]->dataMap.append("score", final_scores[2]);
 				p3[i]->dataMap.append("accuracy", accuracies[2]);
@@ -666,6 +845,16 @@ class Game {
 				p3[i]->dataMap.append("sLost", findTeam(3)->sLost);
 				p3[i]->dataMap.append("teamActivity", findTeam(3)->teamActivity);
 				p3[i]->dataMap.append("cooperation", findTeam(3)->cooperation);
+				// p3[i]->dataMap.append("hhs", hhs/3);
+				// p3[i]->dataMap.append("hhh", hhh/3);
+				// p3[i]->dataMap.append("hhb", hhb/3);
+				// p3[i]->dataMap.append("bbb", bbb/3);
+				// p3[i]->dataMap.append("bbs", bbs/3);
+				// p3[i]->dataMap.append("bbh", bbh/3);
+				// p3[i]->dataMap.append("sss", sss/3);
+				// p3[i]->dataMap.append("ssh", ssh/3);
+				// p3[i]->dataMap.append("ssb", ssb/3);
+				// p3[i]->dataMap.append("hbs", hbs/3);
 
 				p4[i]->dataMap.append("score", final_scores[3]);
 				p4[i]->dataMap.append("accuracy", accuracies[3]);
@@ -683,6 +872,16 @@ class Game {
 				p4[i]->dataMap.append("sLost", findTeam(4)->sLost);
 				p4[i]->dataMap.append("teamActivity", findTeam(4)->teamActivity);
 				p4[i]->dataMap.append("cooperation", findTeam(4)->cooperation);
+				// p4[i]->dataMap.append("hhs", hhs/3);
+				// p4[i]->dataMap.append("hhh", hhh/3);
+				// p4[i]->dataMap.append("hhb", hhb/3);
+				// p4[i]->dataMap.append("bbb", bbb/3);
+				// p4[i]->dataMap.append("bbs", bbs/3);
+				// p4[i]->dataMap.append("bbh", bbh/3);
+				// p4[i]->dataMap.append("sss", sss/3);
+				// p4[i]->dataMap.append("ssh", ssh/3);
+				// p4[i]->dataMap.append("ssb", ssb/3);
+				// p4[i]->dataMap.append("hbs", hbs/3);
 			}
 
 
@@ -1276,6 +1475,27 @@ class Game {
 			Y = bullet->y + bullet->facingY;
 		}
 
+		double findTaskByCoords(int x, int y)
+		{
+			double out = -1;
+			for (auto team : teams)
+			{
+				for (auto agent : team->agents)
+				{
+					if(agent->x == x && agent->y == y)
+					{
+						out = agent->task;
+					}
+				}
+			}
+			if (out == -1)
+			{
+				cout<<"\nCoopWorld: Unexpected behavior. Task search for a non-agent. Exiting!"<<endl;
+				exit(1);
+			}
+			return out;
+		}
+
 		//Returns the vision array of an agent
 		vector<double> getVision(shared_ptr<struct Agent> agent, int mode = 0)
 		{
@@ -1296,31 +1516,142 @@ class Game {
 				fakeAgent->y = agent->y;
 				int X, Y;
 				frontGridSpace(fakeAgent, X, Y); 
-				vision.push_back(isInGrid(X, Y)?(!isThereABullet(X, Y)?grid[X][Y]:BULLET):NA);
+				double temp_out = NA;
+				if (isInGrid(X, Y)) 
+				{
+					if (isThereABullet(X, Y))
+					{
+						temp_out = BULLET;
+					}
+					else
+					{
+						if (grid[X][Y] == AGENT)
+						{
+							temp_out == findTaskByCoords(X, Y);
+						}else 
+						{
+							temp_out = grid[X][Y];
+						}
+					}
+				}
+				vision.push_back(temp_out);
 				fakeAgent->x = X;
 				fakeAgent->y = Y;
 				frontGridSpace(fakeAgent, X, Y); 
-				vision.push_back(isInGrid(X, Y)?(!isThereABullet(X, Y)?grid[X][Y]:BULLET):NA);
+				temp_out = NA;
+				if (isInGrid(X, Y)) 
+				{
+					if (isThereABullet(X, Y))
+					{
+						temp_out = BULLET;
+					}
+					else
+					{
+						if (grid[X][Y] == AGENT)
+						{
+							temp_out == findTaskByCoords(X, Y);
+						}else 
+						{
+							temp_out = grid[X][Y];
+						}
+					}
+				}
+				vision.push_back(temp_out);
 				turnL(fakeAgent);
 				frontGridSpace(fakeAgent, X, Y); 
-				vision.push_back(isInGrid(X, Y)?(!isThereABullet(X, Y)?grid[X][Y]:BULLET):NA);
+				temp_out = NA; 
+				if (isInGrid(X, Y)) 
+				{
+					if (isThereABullet(X, Y))
+					{
+						temp_out = BULLET;
+					}
+					else
+					{
+						if (grid[X][Y] == AGENT)
+						{
+							temp_out == findTaskByCoords(X, Y);
+						}else 
+						{
+							temp_out = grid[X][Y];
+						}
+					}
+				}
+				vision.push_back(temp_out);
 				turnR(fakeAgent);
 				turnR(fakeAgent);
 				frontGridSpace(fakeAgent, X, Y); 
-				vision.push_back(isInGrid(X, Y)?(!isThereABullet(X, Y)?grid[X][Y]:BULLET):NA);
+				temp_out = NA;
+				if (isInGrid(X, Y)) 
+				{
+					if (isThereABullet(X, Y))
+					{
+						temp_out = BULLET;
+					}
+					else
+					{
+						if (grid[X][Y] == AGENT)
+						{
+							temp_out == findTaskByCoords(X, Y);
+						}else 
+						{
+							temp_out = grid[X][Y];
+						}
+					}
+				}
+				vision.push_back(temp_out);
 				fakeAgent->facingX = agent->facingX;
 				fakeAgent->facingY = agent->facingY;
 				fakeAgent->x = agent->x;
 				fakeAgent->y = agent->y;
 				turnL(fakeAgent);
 				frontGridSpace(fakeAgent, X, Y); 
-				vision.push_back(isInGrid(X, Y)?(!isThereABullet(X, Y)?grid[X][Y]:BULLET):NA);
+				temp_out = NA; 
+				if (isInGrid(X, Y)) 
+				{
+					if (isThereABullet(X, Y))
+					{
+						temp_out = BULLET;
+					}
+					else
+					{
+						if (grid[X][Y] == AGENT)
+						{
+							temp_out == findTaskByCoords(X, Y);
+						}else 
+						{
+							temp_out = grid[X][Y];
+						}
+					}
+				}
+				vision.push_back(temp_out);
 				turnR(fakeAgent);
 				turnR(fakeAgent);
 				frontGridSpace(fakeAgent, X, Y); 
-				vision.push_back(isInGrid(X, Y)?(!isThereABullet(X, Y)?grid[X][Y]:BULLET):NA);
+				temp_out = NA; 
+				if (isInGrid(X, Y)) 
+				{
+					if (isThereABullet(X, Y))
+					{
+						temp_out = BULLET;
+					}
+					else
+					{
+						if (grid[X][Y] == AGENT)
+						{
+							temp_out == findTaskByCoords(X, Y);
+						}else 
+						{
+							temp_out = grid[X][Y];
+						}
+					}
+				}
+				vision.push_back(temp_out);
 			}else if(mode == 1)
 			{
+				cout<<"CoopWorld:: Sense mode does not support agent tasks. Exiting!"<<endl;
+
+				// exit(1);
 				// V V V
 				// V A V
 				// V V V
@@ -1582,6 +1913,17 @@ CoopWorld::CoopWorld(shared_ptr<ParametersTable> _PT) :
 	popFileColumns.push_back("sLost");
 	popFileColumns.push_back("cooperation");
 	popFileColumns.push_back("teamActivity");
+	// popFileColumns.push_back("hhh");
+	// popFileColumns.push_back("hhb");
+	// popFileColumns.push_back("bbb");
+	// popFileColumns.push_back("bbs");
+	// popFileColumns.push_back("bbh");
+	// popFileColumns.push_back("sss");
+	// popFileColumns.push_back("ssh");
+	// popFileColumns.push_back("ssb");
+	// popFileColumns.push_back("hbs");
+	// popFileColumns.push_back("hhs");
+
 }
 
 void CoopWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
